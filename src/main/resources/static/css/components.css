@@ -1,0 +1,673 @@
+/*
+ * Modern Component Styles
+ * Clean, minimal UI components with Islamic aesthetics
+ */
+
+/* ========================================
+   RESET & BASE
+   ======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-primary);
+    background: var(--bg-light);
+    color: var(--text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color var(--transition-base);
+}
+
+/* ========================================
+   TYPOGRAPHY - Modern & Readable
+   ======================================== */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+}
+
+h1 { font-size: clamp(2rem, 5vw, 3.5rem); }
+h2 { font-size: clamp(1.5rem, 4vw, 2.5rem); }
+h3 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+p {
+    margin-bottom: var(--space-m);
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+.text-large {
+    font-size: 1.125rem;
+}
+
+.text-small {
+    font-size: 0.875rem;
+}
+
+.text-xs {
+    font-size: 0.75rem;
+}
+
+/* ========================================
+   LAYOUT - Scandinavian Spacing
+   ======================================== */
+.container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 var(--space-xl);
+}
+
+.container-narrow {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 var(--space-xl);
+}
+
+.section {
+    padding: var(--space-3xl) 0;
+}
+
+.grid {
+    display: grid;
+    gap: var(--space-l);
+}
+
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.grid-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.gap-s { gap: var(--space-s); }
+.gap-m { gap: var(--space-m); }
+.gap-l { gap: var(--space-l); }
+
+/* ========================================
+   CARDS - Modern with Subtle Shadows
+   ======================================== */
+.card {
+    background: var(--card);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+    box-shadow: var(--shadow-s);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-base);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-m);
+    transform: translateY(-2px);
+}
+
+.card-flat {
+    box-shadow: none;
+    border: 1px solid var(--border);
+}
+
+.card-elevated {
+    box-shadow: var(--shadow-l);
+}
+
+.card-glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Card with Islamic pattern */
+.card-pattern {
+    position: relative;
+}
+
+.card-pattern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 200px;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.4'%3E%3Cpath d='M100 0L150 50L100 100L50 50z M100 100L150 150L100 200L50 150z M0 100L50 150L0 200L-50 150z M200 100L150 150L200 200L250 150z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ========================================
+   PRAYER TIME CARDS - Unique Design
+   ======================================== */
+.prayer-card {
+    background: var(--gradient-3);
+    border-radius: var(--radius-xl);
+    padding: var(--space-l);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    transition: all var(--transition-base);
+}
+
+.prayer-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, var(--overlay) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity var(--transition-base);
+}
+
+.prayer-card:hover::before {
+    opacity: 1;
+}
+
+.prayer-card.active {
+    background: var(--gradient-1);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: var(--shadow-l);
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.prayer-card.active .prayer-name,
+.prayer-card.active .prayer-time {
+    color: white;
+}
+
+.prayer-name {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-s);
+}
+
+.prayer-time {
+    font-family: var(--font-mono);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 0.05em;
+}
+
+.prayer-indicator {
+    position: absolute;
+    top: var(--space-m);
+    right: var(--space-m);
+    width: 12px;
+    height: 12px;
+    border-radius: var(--radius-full);
+    background: var(--secondary);
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: var(--shadow-l); }
+    50% { box-shadow: 0 8px 40px var(--primary), 0 0 20px var(--secondary); }
+}
+
+@keyframes pulse-dot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.7; }
+}
+
+/* ========================================
+   BUTTONS - Modern & Accessible
+   ======================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-s);
+    padding: var(--space-m) var(--space-xl);
+    font-family: var(--font-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1;
+    border: none;
+    border-radius: var(--radius-l);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform var(--transition-base);
+}
+
+.btn:hover::before {
+    transform: translateX(100%);
+}
+
+.btn-primary {
+    background: var(--gradient-1);
+    color: white;
+    box-shadow: var(--shadow-s);
+}
+
+.btn-primary:hover {
+    box-shadow: var(--shadow-m);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: var(--bg-medium);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+    background: var(--card);
+    border-color: var(--primary);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--primary);
+}
+
+.btn-ghost:hover {
+    background: var(--overlay);
+}
+
+.btn-icon {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border-radius: var(--radius-full);
+}
+
+.btn-sm {
+    padding: var(--space-s) var(--space-m);
+    font-size: 0.875rem;
+}
+
+.btn-lg {
+    padding: var(--space-l) var(--space-2xl);
+    font-size: 1.125rem;
+}
+
+/* ========================================
+   TOGGLE SWITCHES - Beautiful & Smooth
+   ======================================== */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 56px;
+    height: 32px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-medium);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    height: 24px;
+    width: 24px;
+    left: 2px;
+    bottom: 2px;
+    background: white;
+    border-radius: var(--radius-full);
+    transition: all var(--transition-spring);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+input:checked + .toggle-slider {
+    background: var(--gradient-1);
+    border-color: var(--primary);
+}
+
+input:checked + .toggle-slider::before {
+    transform: translateX(24px);
+}
+
+/* ========================================
+   INPUT FIELDS - Clean & Minimal
+   ======================================== */
+.input-group {
+    margin-bottom: var(--space-l);
+}
+
+.input-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-s);
+}
+
+.input-field {
+    width: 100%;
+    padding: var(--space-m);
+    font-family: var(--font-primary);
+    font-size: 1rem;
+    color: var(--text-primary);
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-l);
+    transition: all var(--transition-base);
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--overlay);
+}
+
+.input-field::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.5;
+}
+
+/* ========================================
+   BADGES & TAGS
+   ======================================== */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-m);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: var(--radius-full);
+    background: var(--overlay);
+    color: var(--primary);
+}
+
+.badge-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.badge-secondary {
+    background: var(--secondary);
+    color: white;
+}
+
+/* ========================================
+   PROGRESS INDICATORS
+   ======================================== */
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--bg-medium);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--gradient-1);
+    border-radius: var(--radius-full);
+    transition: width var(--transition-slow);
+}
+
+/* ========================================
+   DIVIDERS - Elegant Separators
+   ======================================== */
+.divider {
+    height: 1px;
+    background: var(--border);
+    margin: var(--space-xl) 0;
+}
+
+.divider-thick {
+    height: 2px;
+    background: var(--gradient-3);
+}
+
+.divider-vertical {
+    width: 1px;
+    height: 100%;
+    background: var(--border);
+}
+
+/* ========================================
+   LOADING STATES
+   ======================================== */
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--bg-medium) 0%,
+        var(--border) 50%,
+        var(--bg-medium) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: var(--radius-m);
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: var(--radius-full);
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 768px) {
+    .container,
+    .container-narrow {
+        padding: 0 var(--space-m);
+    }
+
+    .section {
+        padding: var(--space-2xl) 0;
+    }
+
+    .card {
+        padding: var(--space-l);
+    }
+
+    .grid-2,
+    .grid-3,
+    .grid-4 {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ========================================
+   MISSING COMPONENT FIXES
+   ======================================== */
+
+/* Hide the raw file input — styled via label */
+.upload-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+/* Danger button */
+.btn-danger {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    color: white;
+    border: none;
+    box-shadow: 0 2px 8px rgba(220,38,38,0.3);
+}
+.btn-danger:hover {
+    background: linear-gradient(135deg, #b91c1c, #dc2626);
+    box-shadow: 0 4px 16px rgba(220,38,38,0.4);
+    transform: translateY(-1px);
+}
+
+/* Playing state for test buttons */
+.btn-playing {
+    background: linear-gradient(135deg, #16a34a, #22c55e) !important;
+    color: white !important;
+    animation: btn-pulse 1.5s ease-in-out infinite;
+}
+@keyframes btn-pulse {
+    0%, 100% { box-shadow: 0 2px 8px rgba(22,163,74,0.4); }
+    50%       { box-shadow: 0 4px 20px rgba(22,163,74,0.7); }
+}
+
+/* File sequence items */
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    padding: var(--space-s) var(--space-m);
+    background: var(--bg-medium);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-l);
+    margin-bottom: var(--space-s);
+    transition: all var(--transition-fast);
+}
+.file-item:hover {
+    border-color: var(--primary);
+    background: var(--card);
+}
+.file-item.dragging {
+    opacity: 0.5;
+    border-style: dashed;
+}
+.file-item-number {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    background: var(--primary);
+    color: white;
+    border-radius: var(--radius-m);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+}
+.file-item select {
+    flex: 1;
+    padding: var(--space-s) var(--space-m);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-m);
+    background: var(--bg-light);
+    color: var(--text-primary);
+    font-family: var(--font-primary);
+    font-size: 0.9rem;
+}
+.drag-handle {
+    cursor: grab;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    padding: 0 var(--space-xs);
+    user-select: none;
+}
+.remove-file-btn {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    padding: var(--space-xs) var(--space-s);
+    border-radius: var(--radius-m);
+    transition: all var(--transition-fast);
+}
+.remove-file-btn:hover {
+    background: rgba(220,38,38,0.1);
+    color: #dc2626;
+}
+
+/* Notification toast */
+.notification {
+    position: fixed;
+    bottom: var(--space-xl);
+    right: var(--space-xl);
+    padding: var(--space-m) var(--space-xl);
+    border-radius: var(--radius-l);
+    font-weight: 600;
+    font-family: var(--font-primary);
+    font-size: 0.95rem;
+    z-index: 10000;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all var(--transition-base);
+    max-width: 380px;
+    box-shadow: var(--shadow-l);
+    pointer-events: none;
+}
+.notification.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+.notification.success {
+    background: #16a34a;
+    color: white;
+}
+.notification.error {
+    background: #dc2626;
+    color: white;
+}
+.notification.info {
+    background: var(--primary);
+    color: white;
+}
+
+

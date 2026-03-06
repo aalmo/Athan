@@ -1,0 +1,23 @@
+{
+  "city": "Mecca",
+  "latitude": 21.4225,
+  "longitude": 39.8262,
+  "timezone": "Asia/Riyadh",
+  "calculationMethod": "UMM_AL_QURA",
+  "audioConfig": {
+    "enabled": true,
+    "volume": 80,
+    "outputDevice": "default",
+    "prayerAudioFiles": {
+      "FAJR": ["fajr.mp3"],
+      "DHUHR": ["dhuhr.mp3"],
+      "ASR": ["asr.mp3"],
+      "MAGHRIB": ["maghrib.mp3"],
+      "ISHA": ["isha.mp3", "dua.mp3"],
+      "TASBEE7_1": ["tasbee7.mp3"],
+      "TASBEE7_2": ["tasbee7.mp3"],
+      "TASBEE7_3": ["tasbee7.mp3"]
+    }
+  }
+}
+

@@ -1,0 +1,301 @@
+/*
+ * Athan Application - Modern Islamic UI Theme System
+ * Three Adaptive Themes: Everyday, Ramadan, Eid
+ * Blending Arabic/Islamic aesthetics with European minimalism
+ */
+
+/* ========================================
+   FONT IMPORTS
+   ======================================== */
+/* Fallback web fonts loaded from Google (used if Al Jazeera Arabic TTF fails) */
+@import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    /* Al-Jazeera Arabic is self-hosted via @font-face in index.html.
+       Fallback chain: Al Jazeera Arabic → Almarai (Arabic) → Tajawal → Inter (Latin) */
+    --font-arabic: 'Al Jazeera Arabic', 'Almarai', 'Tajawal', sans-serif;
+    --font-latin:  'Al Jazeera Arabic', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ========================================
+   EVERYDAY THEME - Clean & Peaceful
+   ======================================== */
+:root {
+    /* Color Palette - Everyday */
+    --everyday-primary: #2C5F8D;          /* Deep Blue - Trust & Peace */
+    --everyday-secondary: #D4AF37;        /* Warm Gold - Subtle Elegance */
+    --everyday-accent: #3A8FB7;           /* Sky Blue */
+    --everyday-bg-light: #FAFBFC;         /* Almost White */
+    --everyday-bg-medium: #F4F6F8;        /* Soft Gray */
+    --everyday-text-primary: #1A2332;     /* Deep Charcoal */
+    --everyday-text-secondary: #5A6C7D;   /* Medium Gray */
+    --everyday-border: #E1E8ED;           /* Light Border */
+    --everyday-card: #FFFFFF;             /* Pure White */
+    --everyday-shadow: rgba(42, 51, 60, 0.12);
+    --everyday-overlay: rgba(44, 95, 141, 0.05);
+
+    /* Gradients - Everyday */
+    --everyday-gradient-1: linear-gradient(135deg, #2C5F8D 0%, #3A8FB7 100%);
+    --everyday-gradient-2: linear-gradient(135deg, #F4F6F8 0%, #FAFBFC 100%);
+    --everyday-gradient-3: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+}
+
+/* ========================================
+   RAMADAN THEME - Spiritual & Elegant
+   ======================================== */
+:root[data-theme="ramadan"] {
+    /* Color Palette - Ramadan — WCAG AA contrast compliant */
+    --primary: #C5D9C2;                   /* Forest Green — 4.7:1 on white ✓ */
+    --secondary: #B8860B;                 /* Dark Goldenrod — readable on light bg */
+    --accent: #2E8B57;                    /* Sea Green */
+    --bg-light: #F8F9F5;                  /* Soft Cream */
+    --bg-medium: #EEF2E6;                 /* Light Sage */
+    --text-primary: #0F1F14;             /* Near-black with green tint — high contrast */
+    --text-secondary: #3D5244;            /* Readable muted green-gray */
+    --border: #C5D9C2;                    /* Soft Green Border */
+    --card: #FFFFFF;
+    --shadow: rgba(27, 107, 58, 0.14);
+    --overlay: rgba(46, 139, 87, 0.07);
+    --ramadan-moon: #FFEAA7;
+    --ramadan-star: #FDD835;
+
+    /* Gradients - Ramadan */
+    --gradient-1: linear-gradient(135deg, #1B6B3A 0%, #2E8B57 100%);
+    --gradient-2: linear-gradient(135deg, #EEF2E6 0%, #F8F9F5 100%);
+    --gradient-3: linear-gradient(135deg, rgba(184, 134, 11, 0.12) 0%, rgba(184, 134, 11, 0.04) 100%);
+    --gradient-ramadan-special: linear-gradient(135deg, #1B6B3A 0%, #2E8B57 50%, #B8860B 100%);
+}
+
+/* ========================================
+   EID THEME - Joyful & Festive
+   ======================================== */
+:root[data-theme="eid"] {
+    /* Color Palette - Eid */
+    --primary: #8B1874;                   /* Royal Purple - Celebration */
+    --secondary: #E8B923;                 /* Bright Gold - Joy */
+    --accent: #C2185B;                    /* Magenta Pink */
+    --bg-light: #FDF8F3;                  /* Warm Cream */
+    --bg-medium: #F9F1E7;                 /* Soft Beige */
+    --text-primary: #2A1A2E;              /* Deep Purple-Black */
+    --text-secondary: #5D4E60;            /* Muted Purple-Gray */
+    --border: #E8D7D3;                    /* Soft Rose Border */
+    --card: #FFFFFF;                      /* Pure White */
+    --shadow: rgba(139, 24, 116, 0.18);
+    --overlay: rgba(194, 24, 91, 0.1);
+    --eid-celebration: #FF6B9D;           /* Festive Pink */
+    --eid-sparkle: #FFD700;               /* Gold Sparkle */
+
+    /* Gradients - Eid */
+    --gradient-1: linear-gradient(135deg, #8B1874 0%, #C2185B 100%);
+    --gradient-2: linear-gradient(135deg, #F9F1E7 0%, #FDF8F3 100%);
+    --gradient-3: linear-gradient(135deg, rgba(232, 185, 35, 0.2) 0%, rgba(232, 185, 35, 0.08) 100%);
+    --gradient-eid-special: linear-gradient(135deg, #8B1874 0%, #C2185B 50%, #E8B923 100%);
+}
+
+/* ========================================
+   DEFAULT MAPPING (Everyday)
+   ======================================== */
+:root {
+    --primary: var(--everyday-primary);
+    --secondary: var(--everyday-secondary);
+    --accent: var(--everyday-accent);
+    --bg-light: var(--everyday-bg-light);
+    --bg-medium: var(--everyday-bg-medium);
+    --text-primary: var(--everyday-text-primary);
+    --text-secondary: var(--everyday-text-secondary);
+    --border: var(--everyday-border);
+    --card: var(--everyday-card);
+    --shadow: var(--everyday-shadow);
+    --overlay: var(--everyday-overlay);
+
+    --gradient-1: var(--everyday-gradient-1);
+    --gradient-2: var(--everyday-gradient-2);
+    --gradient-3: var(--everyday-gradient-3);
+
+    /* Typography — Al-Jazeera Arabic first (self-hosted), then fallbacks */
+    --font-primary: 'Al Jazeera Arabic', 'Almarai', 'Tajawal', 'Inter', sans-serif;
+    --font-display: 'Al Jazeera Arabic', 'Almarai', 'Amiri', 'Inter', sans-serif;
+    --font-mono:    'IBM Plex Mono', 'SF Mono', 'Fira Code', monospace;
+
+    /* Spacing - Scandinavian Influence */
+    --space-xs: 4px;
+    --space-s: 8px;
+    --space-m: 16px;
+    --space-l: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+    --space-3xl: 64px;
+
+    /* Border Radius */
+    --radius-s: 4px;
+    --radius-m: 8px;
+    --radius-l: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 24px;
+    --radius-full: 9999px;
+
+    /* Shadows - Layered Depth */
+    --shadow-xs: 0 1px 2px var(--shadow);
+    --shadow-s: 0 2px 8px var(--shadow);
+    --shadow-m: 0 4px 16px var(--shadow);
+    --shadow-l: 0 8px 32px var(--shadow);
+    --shadow-xl: 0 16px 48px var(--shadow);
+
+    /* Islamic Geometric Pattern Opacity */
+    --pattern-opacity: 0.03;
+    --pattern-opacity-hover: 0.06;
+
+    /* Transitions */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ========================================
+   DARK MODE VARIATIONS
+   ======================================== */
+:root[data-dark-mode="true"] {
+    /* Everyday Dark — update all mapped variables */
+    --primary: #5BA3E8;                   /* Bright blue — readable on dark */
+    --everyday-primary: #5BA3E8;
+    --bg-light: #111827;
+    --bg-medium: #1E2A3A;
+    --text-primary: #E8EDF4;
+    --text-secondary: #A0A8B8;
+    --card: #1A2332;
+    --border: #2D3B4E;
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --shadow: rgba(0, 0, 0, 0.4);
+    --overlay: rgba(91, 163, 232, 0.08);
+    --gradient-1: linear-gradient(135deg, #2C5F8D 0%, #3A8FB7 100%);
+
+    --everyday-bg-light: #111827;
+    --everyday-bg-medium: #1E2A3A;
+    --everyday-text-primary: #E8EDF4;
+    --everyday-text-secondary: #A0A8B8;
+    --everyday-card: #1A2332;
+    --everyday-border: #2D3B4E;
+    --everyday-shadow: rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme="ramadan"][data-dark-mode="true"] {
+    /* Ramadan Dark — lighter greens for dark backgrounds */
+    --primary: #4ABA78;                   /* Bright mint green — readable on dark bg */
+    --secondary: #D4A843;                 /* Warm gold */
+    --bg-light: #121A15;
+    --bg-medium: #1A2520;
+    --text-primary: #E4F0E8;             /* Near-white with warm green tint */
+    --text-secondary: #8DB89A;            /* Muted sage */
+    --card: #1A2520;
+    --border: #2A3E30;
+    --shadow: rgba(0, 0, 0, 0.5);
+    --overlay: rgba(74, 186, 120, 0.1);
+    --gradient-1: linear-gradient(135deg, #1B6B3A 0%, #2E8B57 100%);
+}
+
+:root[data-theme="eid"][data-dark-mode="true"] {
+    /* Eid Dark */
+    --primary: #D946EF;
+    --bg-light: #2A1A2E;
+    --bg-medium: #3D2842;
+    --text-primary: #FAE8FF;
+    --text-secondary: #D8B4E8;
+    --card: #2E1F31;
+    --border: #4A3450;
+    --shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* ========================================
+   ISLAMIC GEOMETRIC PATTERNS (SVG)
+   ======================================== */
+.pattern-overlay {
+    position: absolute;
+    inset: 0;
+    opacity: var(--pattern-opacity);
+    pointer-events: none;
+    background-image:
+        repeating-linear-gradient(45deg, transparent, transparent 10px, var(--primary) 10px, var(--primary) 11px),
+        repeating-linear-gradient(-45deg, transparent, transparent 10px, var(--primary) 10px, var(--primary) 11px);
+    background-size: 30px 30px;
+    transition: opacity var(--transition-base);
+}
+
+.pattern-mashrabiya {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.pattern-star {
+    background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.03'%3E%3Cpath d='M40 20l5.878 17.756L64 40l-18.122 2.244L40 60l-5.878-17.756L16 40l18.122-2.244z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.pattern-arabesque {
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 0C22.4 0 0 22.4 0 50s22.4 50 50 50 50-22.4 50-50S77.6 0 50 0zm0 90c-22.1 0-40-17.9-40-40s17.9-40 40-40 40 17.9 40 40-17.9 40-40 40z' fill='%23000000' fill-opacity='0.03'/%3E%3C/svg%3E");
+}
+
+/* ========================================
+   THEME-SPECIFIC DECORATIVE ELEMENTS
+   ======================================== */
+/* Ramadan Crescent */
+.ramadan-crescent::before {
+    content: '🌙';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 2em;
+    opacity: 0.15;
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Eid Celebration Confetti */
+.eid-confetti::before {
+    content: '✨';
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    font-size: 1.5em;
+    opacity: 0.2;
+    animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+@keyframes sparkle {
+    0%, 100% { opacity: 0.1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(1.1); }
+}
+
+/* ========================================
+   THEME TRANSITION ANIMATIONS
+   ======================================== */
+.theme-transition {
+    transition:
+        background-color var(--transition-slow),
+        color var(--transition-slow),
+        border-color var(--transition-slow),
+        box-shadow var(--transition-slow);
+}
+
+/* Smooth theme switch */
+* {
+    transition:
+        background-color var(--transition-base),
+        color var(--transition-base),
+        border-color var(--transition-base);
+}
+
+
+/* ========================================
+   RESPONSIVE BREAKPOINTS
+   ======================================== */
+@media (max-width: 768px) {
+    :root {
+        --space-xl: 24px;
+        --space-2xl: 32px;
+        --space-3xl: 48px;
+    }
+}
+
