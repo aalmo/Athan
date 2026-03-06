@@ -27,7 +27,7 @@ A beautiful, modern web application that plays Islamic Athan (call to prayer) at
 
 ## ✨ Features
 
-![Athan.png](doc/Athan.png)
+![Athan Header.png](doc/Athan%20Header.png)
 
 ### 🕌 Core Prayer Features
 
@@ -45,8 +45,8 @@ A beautiful, modern web application that plays Islamic Athan (call to prayer) at
   - Kuwait
   - Qatar
 
-![Prayer Times.png](doc/Prayer%20Times.png)
-  - 
+![Prayer Audio Configuration.png](doc/Prayer%20Audio%20Configuration.png)
+  
 #### Live Prayer Times Display
 - All 5 daily prayers: Fajr, Dhuhr, Asr, Maghrib, Isha
 - Sunrise time for reference
@@ -54,7 +54,7 @@ A beautiful, modern web application that plays Islamic Athan (call to prayer) at
 - Beautiful gradient-based cards
 - Prayer animations and highlighting
 
-![Prayer Audio Settings.png](doc/Prayer%20Audio%20Settings.png)
+![Countdown.png](doc/Countdown.png)
 
 ### 🔊 Audio Notification System
 
@@ -76,9 +76,11 @@ A beautiful, modern web application that plays Islamic Athan (call to prayer) at
 - Real-time file list updates
 - File type validation (MP3/WAV only)
 
+![Audio Settings.png](doc/Audio%20Settings.png)
+
 ### 🌙 Special Islamic Events
 
-![Special Settings.png](doc/Special%20Settings.png)
+![Special Modes.png](doc/Special%20Modes.png)
 
 #### Ramadan Mode
 - **Automatic Activation** - Detects Ramadan dates automatically
@@ -103,6 +105,8 @@ A beautiful, modern web application that plays Islamic Athan (call to prayer) at
 
 ### 🎨 Beautiful Interface
 
+![Special Modes.png](doc/Special%20Modes.png)
+
 #### Multi-Theme System
 - **Everyday Theme** - Clean, minimal, peaceful (default)
 - **Ramadan Theme** - Warm golds, night-friendly colors, spiritual
@@ -126,6 +130,8 @@ A beautiful, modern web application that plays Islamic Athan (call to prayer) at
 - **RTL Support** - Proper right-to-left layout for Arabic
 
 ### ⚙️ Configuration Management
+
+![Location Settings & Audio.png](doc/Location%20Settings%20%26%20Audio.png)
 
 #### Settings Stored
 - Location (city name, latitude, longitude)
@@ -155,6 +161,8 @@ One-click setup for:
 - Istanbul, Turkey
 - London, UK
 - New York, USA
+
+![Location Settings.png](doc/Location%20Settings.png)
 
 Plus manual entry for any location worldwide.
 
