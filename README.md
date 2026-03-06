@@ -8,6 +8,7 @@
 A beautiful, modern web-based application that calculates Islamic prayer times based on your location and plays audio notifications (Athan) at prayer times, with support for Ramadan Mode, Islamic Holidays, and multiple themes.
 
 **📖 [Read Comprehensive Documentation](README_COMPREHENSIVE.md)** - Complete guide with all features, configuration, and troubleshooting.
+![Uploading image.png…]()
 
 ## ⚡ Quick Features
 
