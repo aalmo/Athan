@@ -27,6 +27,8 @@ A beautiful, modern web application that plays Islamic Athan (call to prayer) at
 
 ## ✨ Features
 
+![Athan.png](doc/Athan.png)
+
 ### 🕌 Core Prayer Features
 
 #### Prayer Time Calculation
@@ -43,12 +45,16 @@ A beautiful, modern web application that plays Islamic Athan (call to prayer) at
   - Kuwait
   - Qatar
 
+![Prayer Times.png](doc/Prayer%20Times.png)
+  - 
 #### Live Prayer Times Display
 - All 5 daily prayers: Fajr, Dhuhr, Asr, Maghrib, Isha
 - Sunrise time for reference
 - Real-time countdown to next prayer
 - Beautiful gradient-based cards
 - Prayer animations and highlighting
+
+![Prayer Audio Settings.png](doc/Prayer%20Audio%20Settings.png)
 
 ### 🔊 Audio Notification System
 
@@ -71,6 +77,8 @@ A beautiful, modern web application that plays Islamic Athan (call to prayer) at
 - File type validation (MP3/WAV only)
 
 ### 🌙 Special Islamic Events
+
+![Special Settings.png](doc/Special%20Settings.png)
 
 #### Ramadan Mode
 - **Automatic Activation** - Detects Ramadan dates automatically
