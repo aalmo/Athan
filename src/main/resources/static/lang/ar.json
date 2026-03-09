@@ -169,7 +169,10 @@
     "tabTakbeer": "التكبير",
     "tabAudioFiles": "الملفات الصوتية",
     "tabTheme": "المظهر",
-    "tabLogs": "السجلات"
+    "tabLogs": "السجلات",
+    "tabOverview": "نظرة عامة",
+    "configure": "إعداد",
+    "noTakbeerTimesSet": "لا توجد أوقات محددة"
   }
 }
 

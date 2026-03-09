@@ -169,7 +169,10 @@
     "tabTakbeer": "Takbeer",
     "tabAudioFiles": "Audio Files",
     "tabTheme": "Theme",
-    "tabLogs": "Logs"
+    "tabLogs": "Logs",
+    "tabOverview": "Overview",
+    "configure": "Configure",
+    "noTakbeerTimesSet": "No times set"
   }
 }
 

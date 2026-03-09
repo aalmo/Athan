@@ -169,6 +169,9 @@
     "tabTakbeer": "Takbeer",
     "tabAudioFiles": "Fichiers Audio",
     "tabTheme": "Thème",
-    "tabLogs": "Journaux"
+    "tabLogs": "Journaux",
+    "tabOverview": "Aperçu",
+    "configure": "Configurer",
+    "noTakbeerTimesSet": "Aucune heure définie"
   }
 }

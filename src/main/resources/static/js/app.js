@@ -302,18 +302,112 @@ function updateThemeStatusBar() {
 }
 
 // ════════════════════════════════════════
-//  TAB SYSTEM
+//  OVERVIEW TAB
 // ════════════════════════════════════════
+function updateOverviewTab() {
+    var prayerNames = {
+        FAJR: '🌅 Fajr', DHUHR: '☀️ Dhuhr', ASR: '🌤️ Asr',
+        MAGHRIB: '🌅 Maghrib', ISHA: '🌙 Isha',
+        TASBEE7_1: '✨ Tasbee7 1', TASBEE7_2: '✨ Tasbee7 2', TASBEE7_3: '✨ Tasbee7 3'
+    };
+    var lang = window._currentLang || {};
+
+    // ── Special Modes badges ──
+    var ramadanOn = (document.getElementById('ramadanMode') || {}).checked;
+    var holidaysOn = (document.getElementById('islamicHolidaysToggle') || {}).checked;
+
+    var rBadge = document.getElementById('ovwRamadanBadge');
+    var hBadge = document.getElementById('ovwHolidaysBadge');
+    if (rBadge) {
+        rBadge.textContent = ramadanOn ? (lang.modeActive || 'Active') + ' ✅' : (lang.modeOff || 'Off');
+        rBadge.className = ramadanOn ? 'ovw-badge-on' : 'ovw-badge-off';
+        rBadge.style.cssText = 'font-size:0.78rem;font-weight:700;padding:3px 12px;border-radius:20px;';
+    }
+    if (hBadge) {
+        hBadge.textContent = holidaysOn ? (lang.modeActive || 'Active') + ' ✅' : (lang.modeOff || 'Off');
+        hBadge.className = holidaysOn ? 'ovw-badge-on' : 'ovw-badge-off';
+        hBadge.style.cssText = 'font-size:0.78rem;font-weight:700;padding:3px 12px;border-radius:20px;';
+    }
+
+    // ── Prayer Audio summary pills ──
+    var prayerContainer = document.getElementById('ovwPrayerAudioSummary');
+    if (prayerContainer) {
+        prayerContainer.innerHTML = Object.keys(prayerNames).map(function(key) {
+            var files = (prayerFiles[key] || []).filter(function(f){ return f && f.trim(); });
+            var label = lang[key] || prayerNames[key];
+            var filesLabel = lang.files || 'files';
+            var preview = files.length ? files[0].replace(/^.*[\\/]/, '') : (lang.noFilesAdded || 'No files');
+            return '<div class="ovw-prayer-pill" onclick="switchTab(\'tab-prayer-audio\',document.querySelector(\'[data-tab=tab-prayer-audio]\'))" style="cursor:pointer;">' +
+                '<span class="pill-name">' + label + '</span>' +
+                '<span class="pill-count">' + files.length + ' ' + filesLabel + '</span>' +
+                '<span class="pill-files" title="' + preview + '">' + preview + '</span>' +
+                '</div>';
+        }).join('');
+    }
+
+    // ── Ramadan Audio summary pills + card visibility ──
+    var ramadanCard = document.getElementById('ovwRamadanAudioCard');
+    if (ramadanCard) ramadanCard.style.display = ramadanOn ? 'block' : 'none';
+
+    var ramadanContainer = document.getElementById('ovwRamadanAudioSummary');
+    if (ramadanContainer && ramadanOn) {
+        ramadanContainer.innerHTML = Object.keys(prayerNames).map(function(key) {
+            var files = (ramadanFiles[key] || []).filter(function(f){ return f && f.trim(); });
+            var label = lang[key] || prayerNames[key];
+            var filesLabel = lang.files || 'files';
+            var preview = files.length ? files[0].replace(/^.*[\\/]/, '') : (lang.noFilesAdded || 'No files');
+            return '<div class="ovw-prayer-pill" onclick="switchTab(\'tab-ramadan\',document.getElementById(\'tabBtnRamadan\'))" style="cursor:pointer;background:rgba(201,166,107,0.1);border-color:rgba(201,166,107,0.3);">' +
+                '<span class="pill-name" style="color:#F0D898;">' + label + '</span>' +
+                '<span class="pill-count" style="background:rgba(201,166,107,0.2);color:#F0D898;">' + files.length + ' ' + filesLabel + '</span>' +
+                '<span class="pill-files" style="color:rgba(240,216,152,0.7);" title="' + preview + '">' + preview + '</span>' +
+                '</div>';
+        }).join('');
+    }
+
+    // ── Takbeer Times card visibility + summary ──
+    var takbeerCard = document.getElementById('ovwTakbeerCard');
+    if (takbeerCard) takbeerCard.style.display = holidaysOn ? 'block' : 'none';
+
+    if (holidaysOn) {
+        var timesLabel = lang.times || 'times';
+        var filesLabel2 = lang.files || 'files';
+        var noFiles = lang.noFilesAdded || 'No files';
+
+        ['FITR', 'ADHA'].forEach(function(eid) {
+            var key = 'EID_' + eid;
+            var times = takbeerTimes[key] || [];
+            var files = (holidayFiles[key] || []).filter(function(f){ return f && f.trim(); });
+
+            // Times pills
+            var timesEl = document.getElementById('ovwTakbeer' + (eid === 'FITR' ? 'Fitr' : 'Adha') + 'Times');
+            if (timesEl) {
+                if (times.length) {
+                    timesEl.innerHTML = times.map(function(t) {
+                        return '<span style="background:var(--primary);color:white;font-size:0.75rem;font-weight:700;padding:3px 10px;border-radius:12px;">' + t + '</span>';
+                    }).join('');
+                } else {
+                    timesEl.innerHTML = '<span style="font-size:0.78rem;color:var(--text-secondary);">— ' + (lang.noTakbeerTimes || 'No times set') + '</span>';
+                }
+            }
+
+            // Files summary
+            var filesEl = document.getElementById('ovwTakbeer' + (eid === 'FITR' ? 'Fitr' : 'Adha') + 'Files');
+            if (filesEl) {
+                filesEl.textContent = '🎵 ' + files.length + ' ' + filesLabel2 + (files.length ? ' · ' + files[0].replace(/^.*[\\/]/, '') : ' · ' + noFiles);
+            }
+        });
+    }
+}
+
+
 function switchTab(tabId, btnEl) {
-    // Deactivate all panels and buttons
     document.querySelectorAll('.cfg-tab-panel').forEach(function(p) { p.classList.remove('active'); });
     document.querySelectorAll('.cfg-tab-btn').forEach(function(b) { b.classList.remove('active'); });
-    // Activate selected
     var panel = document.getElementById(tabId);
     if (panel) panel.classList.add('active');
     if (btnEl) btnEl.classList.add('active');
-    // Persist in both storages so reload returns to same tab
     try { localStorage.setItem('activeTab', tabId); sessionStorage.setItem('activeTab', tabId); } catch(e) {}
+    if (tabId === 'tab-overview') updateOverviewTab();
 }
 
 function restoreTab() {
@@ -323,9 +417,10 @@ function restoreTab() {
         var btn = document.querySelector('.cfg-tab-btn[data-tab="' + saved + '"]');
         if (btn && btn.style.display !== 'none') { switchTab(saved, btn); return; }
     }
-    // default: first tab
     var firstBtn = document.querySelector('.cfg-tab-btn');
     if (firstBtn) switchTab(firstBtn.getAttribute('data-tab'), firstBtn);
+    // Also populate overview on initial load
+    setTimeout(updateOverviewTab, 100);
 }
 
 // ════════════════════════════════════════
@@ -351,18 +446,16 @@ function toggleRamadanUI() {
             switchTab('tab-special', specialBtn);
         }
     }
+    updateOverviewTab();
 }
 
 function toggleIslamicHolidaysUI() {
     var el = document.getElementById('islamicHolidaysToggle');
     var enabled = el ? el.checked : false;
-    // Show/hide the Takbeer tab button
     var tabBtn = document.getElementById('tabBtnTakbeer');
     if (tabBtn) tabBtn.style.display = enabled ? 'flex' : 'none';
-    // Update status badge
     var badge = document.getElementById('specialModeHolidaysStatus');
     if (badge) badge.textContent = enabled ? (t('modeActive','Active') + ' ✅') : t('modeOff','Off');
-    // If disabling and currently on that tab, switch back
     if (!enabled) {
         var activePanel = document.querySelector('.cfg-tab-panel.active');
         if (activePanel && activePanel.id === 'tab-takbeer') {
@@ -370,6 +463,7 @@ function toggleIslamicHolidaysUI() {
             switchTab('tab-special', specialBtn);
         }
     }
+    updateOverviewTab();
 }
 
 // ════════════════════════════════════════
