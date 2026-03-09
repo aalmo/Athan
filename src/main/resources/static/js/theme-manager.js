@@ -6,10 +6,25 @@
 class ThemeManager {
     constructor() {
         this.currentTheme = 'everyday';
-        this.darkMode = localStorage.getItem('darkMode') === 'enabled';
+        // Respect saved pref; if none saved, follow OS
+        const savedDark = localStorage.getItem('darkMode');
+        if (savedDark === null) {
+            this.darkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        } else {
+            this.darkMode = savedDark === 'enabled';
+        }
         // themeMode: 'auto' | 'everyday' | 'ramadan' | 'eid'
         this.themeMode = localStorage.getItem('themeMode') || 'auto';
         this.init();
+        // Live-follow OS dark mode changes (only when user hasn't overridden)
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                if (localStorage.getItem('darkMode') === null) {
+                    this.darkMode = e.matches;
+                    this.applyTheme(this.currentTheme, this.darkMode);
+                }
+            });
+        }
     }
 
     init() {
@@ -157,9 +172,17 @@ class ThemeManager {
      */
     toggleDarkMode() {
         this.darkMode = !this.darkMode;
+        // Mark explicit user choice so OS changes don't override it
         localStorage.setItem('darkMode', this.darkMode ? 'enabled' : 'disabled');
         this.applyTheme(this.currentTheme, this.darkMode);
-
+        // Update button label/icon
+        const icon = document.getElementById('darkModeIcon');
+        const text = document.getElementById('darkModeText');
+        if (icon) icon.textContent = this.darkMode ? '☀️' : '🌙';
+        if (text) {
+            const lang = window._currentLang || {};
+            text.textContent = this.darkMode ? (lang.lightMode || 'Light Mode') : (lang.darkMode || 'Dark Mode');
+        }
         return this.darkMode;
     }
 
