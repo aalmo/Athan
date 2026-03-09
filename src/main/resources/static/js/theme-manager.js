@@ -6,32 +6,130 @@
 class ThemeManager {
     constructor() {
         this.currentTheme = 'everyday';
-        // Respect saved pref; if none saved, follow OS
-        const savedDark = localStorage.getItem('darkMode');
-        if (savedDark === null) {
-            this.darkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        // darkModePreference: 'light' | 'dark' | 'system'
+        const saved = localStorage.getItem('darkModePreference');
+        if (saved && ['light','dark','system'].includes(saved)) {
+            this.darkModePreference = saved;
         } else {
-            this.darkMode = savedDark === 'enabled';
+            // Migrate old 'darkMode' key
+            const legacy = localStorage.getItem('darkMode');
+            if (legacy === 'enabled')       this.darkModePreference = 'dark';
+            else if (legacy === 'disabled') this.darkModePreference = 'light';
+            else                            this.darkModePreference = 'system';
         }
+
         // themeMode: 'auto' | 'everyday' | 'ramadan' | 'eid'
         this.themeMode = localStorage.getItem('themeMode') || 'auto';
+
+        this._resolvedDark = this._resolveDark();
+        this.darkMode = this._resolvedDark; // backwards-compat alias
+
         this.init();
-        // Live-follow OS dark mode changes (only when user hasn't overridden)
+
+        // Live-follow OS changes when preference is 'system'
         if (window.matchMedia) {
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-                if (localStorage.getItem('darkMode') === null) {
-                    this.darkMode = e.matches;
-                    this.applyTheme(this.currentTheme, this.darkMode);
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                if (this.darkModePreference === 'system') {
+                    this._resolvedDark = this._resolveDark();
+                    this.darkMode = this._resolvedDark;
+                    this.applyTheme(this.currentTheme, this._resolvedDark);
+                    this._updateDarkModeButton();
                 }
             });
         }
     }
 
+    /** Resolve the actual boolean dark value from the 3-state preference */
+    _resolveDark() {
+        if (this.darkModePreference === 'dark')   return true;
+        if (this.darkModePreference === 'light')  return false;
+        // 'system'
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+
+    /** Cycle: system → light → dark → system */
+    cycleDarkMode() {
+        const order = ['system', 'light', 'dark'];
+        const idx = order.indexOf(this.darkModePreference);
+        this.darkModePreference = order[(idx + 1) % order.length];
+        localStorage.setItem('darkModePreference', this.darkModePreference);
+
+        this._resolvedDark = this._resolveDark();
+        this.darkMode = this._resolvedDark;
+        this.applyTheme(this.currentTheme, this._resolvedDark);
+        this._updateDarkModeButton();
+        this._updateDarkModeCards();
+        return this.darkModePreference;
+    }
+
+    /** Set a specific preference directly (used from Theme tab cards) */
+    setDarkModePreference(pref) {
+        if (!['light','dark','system'].includes(pref)) return;
+        this.darkModePreference = pref;
+        localStorage.setItem('darkModePreference', pref);
+        this._resolvedDark = this._resolveDark();
+        this.darkMode = this._resolvedDark;
+        this.applyTheme(this.currentTheme, this._resolvedDark);
+        this._updateDarkModeButton();
+        this._updateDarkModeCards();
+    }
+
+    /** Update the header cycle button to reflect current state */
+    _updateDarkModeButton() {
+        const icon = document.getElementById('darkModeIcon');
+        const text = document.getElementById('darkModeText');
+        const map = {
+            dark:   { icon: '☀️', key: 'dmLight',  fallback: 'Light Mode' },
+            light:  { icon: '🌙', key: 'dmDark',   fallback: 'Dark Mode' },
+            system: { icon: '💻', key: 'dmSystem', fallback: 'System' }
+        };
+        // Show what clicking WILL switch TO next:
+        // current=dark  → next=system → show "System"
+        // current=light → next=dark   → show "Dark"
+        // current=system→ next=light  → show "Light"
+        const nextMap = { dark: 'system', light: 'dark', system: 'light' };
+        const next = nextMap[this.darkModePreference];
+        const cfg  = map[next];
+        const lang = window._currentLang || {};
+        if (icon) icon.textContent = cfg.icon;
+        if (text) text.textContent = lang[cfg.key] || cfg.fallback;
+    }
+
+    /** Highlight the active card in the Theme tab dark mode picker */
+    _updateDarkModeCards() {
+        document.querySelectorAll('.dm-option-card').forEach(card => {
+            const active = card.getAttribute('data-dm') === this.darkModePreference;
+            card.style.borderColor = active ? 'var(--primary)' : 'var(--border)';
+            card.style.background  = active ? 'var(--overlay)' : 'var(--card)';
+        });
+    }
+
+    /**
+     * Legacy shim so old callers of toggleDarkMode() still work
+     * @deprecated use cycleDarkMode()
+     */
+    toggleDarkMode() {
+        return this.cycleDarkMode();
+    }
+
     init() {
         this.currentTheme = this.resolveTheme();
-        this.applyTheme(this.currentTheme, this.darkMode);
+        this.applyTheme(this.currentTheme, this._resolvedDark);
         this.addTransitionEffects();
-        console.log(`🎨 Theme activated: ${this.currentTheme} (mode: ${this.themeMode})`);
+        // Refresh button/cards once DOM is fully painted
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                this._updateDarkModeButton();
+                this._updateDarkModeCards();
+            });
+        } else {
+            setTimeout(() => {
+                this._updateDarkModeButton();
+                this._updateDarkModeCards();
+            }, 0);
+        }
+        console.log(`🎨 Theme activated: ${this.currentTheme} | dark-pref: ${this.darkModePreference} | resolved-dark: ${this._resolvedDark}`);
     }
 
     /**
@@ -100,45 +198,111 @@ class ThemeManager {
     }
 
     /**
-     * Get Eid al-Fitr date for given year
+     * Convert a Julian Day Number to a Gregorian Date.
      */
-    getEidFitrDate(year) {
-        if (year === 2026) {
-            return new Date(2026, 2, 21); // March 21, 2026
-        } else if (year === 2027) {
-            return new Date(2027, 2, 11); // March 11, 2027
-        }
-        return new Date(2026, 2, 21); // Default
+    _jdToDate(jd) {
+        // Algorithm from Meeus "Astronomical Algorithms"
+        const z = Math.floor(jd + 0.5);
+        const a = z < 2299161 ? z : (() => {
+            const alpha = Math.floor((z - 1867216.25) / 36524.25);
+            return z + 1 + alpha - Math.floor(alpha / 4);
+        })();
+        const b = a + 1524;
+        const c = Math.floor((b - 122.1) / 365.25);
+        const d = Math.floor(365.25 * c);
+        const e = Math.floor((b - d) / 30.6001);
+        const day   = b - d - Math.floor(30.6001 * e);
+        const month = e < 14 ? e - 1 : e - 13;
+        const year  = month > 2 ? c - 4716 : c - 4715;
+        return new Date(year, month - 1, day);
     }
 
     /**
-     * Get Eid al-Adha date for given year
+     * Compute the Julian Day of the start of a given Hijri month/year.
+     * Uses the Kuwaiti algorithm (same formula used in MS Outlook / IslamicCalendar).
+     * hijriMonth: 1–12, hijriYear: Hijri year (e.g. 1447)
      */
-    getEidAdhaDate(year) {
-        if (year === 2026) {
-            return new Date(2026, 4, 29); // May 29, 2026
-        } else if (year === 2027) {
-            return new Date(2027, 4, 19); // May 19, 2027
-        }
-        return new Date(2026, 4, 29); // Default
+    _hijriToJD(hijriYear, hijriMonth) {
+        return Math.floor(
+            (11 * hijriYear + 3) / 30
+        ) + 354 * hijriYear + 30 * hijriMonth
+          - Math.floor((hijriMonth - 1) / 2) + 1948440 - 385;
     }
 
     /**
-     * Check if current date is in Ramadan
+     * Convert a Gregorian year to the approximate Hijri year that
+     * contains the majority of that Gregorian year.
+     */
+    _gregorianToHijriYear(gregorianYear) {
+        // Hijri year is ~354.37 days; offset from epoch ~621.57 years
+        return Math.round((gregorianYear - 622) * (33 / 32));
+    }
+
+    /**
+     * Get the Gregorian date of the 1st of Ramadan for a given Gregorian year.
+     * Ramadan = Hijri month 9.
+     */
+    _getRamadanStart(gregorianYear) {
+        const hijriYear = this._gregorianToHijriYear(gregorianYear);
+        // Try both candidate Hijri years (the Hijri year can straddle two Gregorian years)
+        for (let hy = hijriYear - 1; hy <= hijriYear + 1; hy++) {
+            const jd = this._hijriToJD(hy, 9);   // month 9 = Ramadan
+            const d  = this._jdToDate(jd);
+            if (d.getFullYear() === gregorianYear) return d;
+        }
+        // Fallback: return best approximation
+        const jd = this._hijriToJD(hijriYear, 9);
+        return this._jdToDate(jd);
+    }
+
+    /**
+     * Get the Gregorian date of the 1st of Shawwal (= Eid al-Fitr) for a given
+     * Gregorian year. Shawwal = Hijri month 10.
+     */
+    getEidFitrDate(gregorianYear) {
+        const hijriYear = this._gregorianToHijriYear(gregorianYear);
+        for (let hy = hijriYear - 1; hy <= hijriYear + 1; hy++) {
+            const jd = this._hijriToJD(hy, 10);
+            const d  = this._jdToDate(jd);
+            if (d.getFullYear() === gregorianYear) return d;
+        }
+        const jd = this._hijriToJD(hijriYear, 10);
+        return this._jdToDate(jd);
+    }
+
+    /**
+     * Get the Gregorian date of the 10th of Dhu al-Hijja (= Eid al-Adha) for a
+     * given Gregorian year. Dhu al-Hijja = Hijri month 12, day 10.
+     */
+    getEidAdhaDate(gregorianYear) {
+        const hijriYear = this._gregorianToHijriYear(gregorianYear);
+        for (let hy = hijriYear - 1; hy <= hijriYear + 1; hy++) {
+            // 1st of Dhu al-Hijja + 9 days = 10th
+            const jd = this._hijriToJD(hy, 12) + 9;
+            const d  = this._jdToDate(jd);
+            if (d.getFullYear() === gregorianYear) return d;
+        }
+        const jd = this._hijriToJD(hijriYear, 12) + 9;
+        return this._jdToDate(jd);
+    }
+
+    /**
+     * Check if a given date falls within Ramadan for its year.
+     * Ramadan lasts 29 or 30 days (1st–29th/30th of Hijri month 9).
      */
     isRamadan(date, year) {
-        if (year === 2026) {
-            // Ramadan 2026: approximately Feb 17 - Mar 19
-            const ramadanStart = new Date(2026, 1, 17); // Feb 17
-            const ramadanEnd = new Date(2026, 2, 19); // Mar 19
-            return date >= ramadanStart && date <= ramadanEnd;
-        } else if (year === 2027) {
-            // Ramadan 2027: approximately Feb 6 - Mar 8
-            const ramadanStart = new Date(2027, 1, 6);
-            const ramadanEnd = new Date(2027, 2, 8);
-            return date >= ramadanStart && date <= ramadanEnd;
-        }
-        return false;
+        const start = this._getRamadanStart(year);
+        // Ramadan is at most 30 days; end = day 30 (inclusive)
+        const end = new Date(start);
+        end.setDate(end.getDate() + 29);   // 30 days total (day 1 + 29)
+        // Also check if Ramadan of the *previous* Gregorian year spills into Jan of this year
+        const startPrev = this._getRamadanStart(year - 1);
+        const endPrev   = new Date(startPrev);
+        endPrev.setDate(endPrev.getDate() + 29);
+
+        const t = date.getTime();
+        return (t >= start.getTime() && t <= end.getTime()) ||
+               (t >= startPrev.getTime() && t <= endPrev.getTime());
     }
 
     /**
@@ -156,34 +320,14 @@ class ThemeManager {
     applyTheme(theme, darkMode = false) {
         const root = document.documentElement;
         root.setAttribute('data-theme', theme);
-        root.setAttribute('data-dark-mode', darkMode);
+        root.setAttribute('data-dark-mode', String(darkMode));
         document.body.classList.add('theme-transition');
         this.currentTheme = theme;
         this.darkMode = darkMode;
-        // dispatch event (no badge indicator)
+        this._resolvedDark = darkMode;
         window.dispatchEvent(new CustomEvent('themeChanged', {
-            detail: { theme, darkMode }
+            detail: { theme, darkMode, preference: this.darkModePreference }
         }));
-    }
-
-
-    /**
-     * Toggle dark mode
-     */
-    toggleDarkMode() {
-        this.darkMode = !this.darkMode;
-        // Mark explicit user choice so OS changes don't override it
-        localStorage.setItem('darkMode', this.darkMode ? 'enabled' : 'disabled');
-        this.applyTheme(this.currentTheme, this.darkMode);
-        // Update button label/icon
-        const icon = document.getElementById('darkModeIcon');
-        const text = document.getElementById('darkModeText');
-        if (icon) icon.textContent = this.darkMode ? '☀️' : '🌙';
-        if (text) {
-            const lang = window._currentLang || {};
-            text.textContent = this.darkMode ? (lang.lightMode || 'Light Mode') : (lang.darkMode || 'Dark Mode');
-        }
-        return this.darkMode;
     }
 
     /**
@@ -306,6 +450,12 @@ console.log('🎨 Theme System Initialized');
 console.log(`📅 Current Date: ${new Date().toDateString()}`);
 console.log(`🎭 Active Theme: ${themeManager.currentTheme}`);
 console.log(`🌙 Dark Mode: ${themeManager.darkMode ? 'ON' : 'OFF'}`);
+
+// Log dynamically computed Islamic dates for current year
+const _y = new Date().getFullYear();
+console.log(`📆 Ramadan ${_y} starts: ${themeManager._getRamadanStart(_y).toDateString()}`);
+console.log(`🌙 Eid al-Fitr ${_y}:    ${themeManager.getEidFitrDate(_y).toDateString()}`);
+console.log(`🐑 Eid al-Adha ${_y}:    ${themeManager.getEidAdhaDate(_y).toDateString()}`);
 
 // Add preview function to window for testing
 window.previewTheme = (theme) => {

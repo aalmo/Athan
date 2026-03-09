@@ -172,7 +172,17 @@
     "tabLogs": "Logs",
     "tabOverview": "Overview",
     "configure": "Configure",
-    "noTakbeerTimesSet": "No times set"
+    "noTakbeerTimesSet": "No times set",
+    "darkModeTitle": "Display Mode",
+    "dmLightLabel": "Light",
+    "dmLightDesc": "Always light",
+    "dmDarkLabel": "Dark",
+    "dmDarkDesc": "Always dark",
+    "dmSystemLabel": "System",
+    "dmSystemDesc": "Follow OS setting",
+    "dmLight": "Light Mode",
+    "dmDark": "Dark Mode",
+    "dmSystem": "System"
   }
 }
 

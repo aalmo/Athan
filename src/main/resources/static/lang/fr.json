@@ -172,6 +172,16 @@
     "tabLogs": "Journaux",
     "tabOverview": "Aperçu",
     "configure": "Configurer",
-    "noTakbeerTimesSet": "Aucune heure définie"
+    "noTakbeerTimesSet": "Aucune heure définie",
+    "darkModeTitle": "Mode d'affichage",
+    "dmLightLabel": "Clair",
+    "dmLightDesc": "Toujours clair",
+    "dmDarkLabel": "Sombre",
+    "dmDarkDesc": "Toujours sombre",
+    "dmSystemLabel": "Système",
+    "dmSystemDesc": "Suivre le réglage OS",
+    "dmLight": "Mode Clair",
+    "dmDark": "Mode Sombre",
+    "dmSystem": "Système"
   }
 }

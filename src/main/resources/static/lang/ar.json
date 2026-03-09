@@ -172,7 +172,17 @@
     "tabLogs": "السجلات",
     "tabOverview": "نظرة عامة",
     "configure": "إعداد",
-    "noTakbeerTimesSet": "لا توجد أوقات محددة"
+    "noTakbeerTimesSet": "لا توجد أوقات محددة",
+    "darkModeTitle": "وضع العرض",
+    "dmLightLabel": "فاتح",
+    "dmLightDesc": "فاتح دائماً",
+    "dmDarkLabel": "داكن",
+    "dmDarkDesc": "داكن دائماً",
+    "dmSystemLabel": "النظام",
+    "dmSystemDesc": "اتباع إعداد النظام",
+    "dmLight": "الوضع الفاتح",
+    "dmDark": "الوضع الداكن",
+    "dmSystem": "النظام"
   }
 }
 

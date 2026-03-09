@@ -97,6 +97,7 @@ function applyLanguage() {
     window._currentLang = lang;
     if (typeof window._refreshCountdownName === 'function') window._refreshCountdownName();
     updateDarkModeText();
+    if (window.themeManager) window.themeManager._updateDarkModeCards();
     // Refresh log viewer placeholder text
     var logPlaceholder = document.getElementById('logViewerPlaceholder');
     if (logPlaceholder && !_allLogLines.length) logPlaceholder.textContent = lang.logViewerPlaceholder || logPlaceholder.textContent;
@@ -131,31 +132,34 @@ function t(key, fallback) {
 }
 
 // ════════════════════════════════════════
-//  DARK MODE
+//  DARK MODE  (3-state: system / light / dark)
 // ════════════════════════════════════════
 function updateDarkModeText() {
-    const isDark = window.themeManager
-        ? window.themeManager.darkMode
-        : document.documentElement.getAttribute('data-dark-mode') === 'true';
-    const icon = document.getElementById('darkModeIcon');
-    const text = document.getElementById('darkModeText');
-    if (icon) icon.textContent = isDark ? '☀️' : '🌙';
-    if (text && currentTranslations) {
-        text.textContent = isDark
-            ? currentTranslations.translations.lightMode
-            : currentTranslations.translations.darkMode;
+    if (window.themeManager) {
+        window.themeManager._updateDarkModeButton();
     }
 }
 
 function toggleDarkMode() {
     if (window.themeManager) {
-        window.themeManager.toggleDarkMode();
+        window.themeManager.cycleDarkMode();
     } else {
+        // Fallback: simple light/dark toggle without themeManager
         const isDark = document.documentElement.getAttribute('data-dark-mode') === 'true';
         document.documentElement.setAttribute('data-dark-mode', String(!isDark));
-        localStorage.setItem('darkMode', !isDark ? 'enabled' : 'disabled');
+        localStorage.setItem('darkModePreference', isDark ? 'light' : 'dark');
+        const icon = document.getElementById('darkModeIcon');
+        const text = document.getElementById('darkModeText');
+        if (icon) icon.textContent = isDark ? '🌙' : '☀️';
+        if (text) text.textContent = isDark ? 'Dark Mode' : 'Light Mode';
     }
-    updateDarkModeText();
+}
+
+/** Called from Theme tab dark-mode option cards */
+function selectDarkMode(pref) {
+    if (window.themeManager) {
+        window.themeManager.setDarkModePreference(pref);
+    }
 }
 
 window.addEventListener('themeChanged', () => updateDarkModeText());
@@ -470,73 +474,39 @@ function toggleIslamicHolidaysUI() {
 //  FILE UPLOAD
 // ════════════════════════════════════════
 function handleFileSelect(event) {
-    var files = Array.from(event.target.files);
-    if (!files.length) return;
-
+    var file = event.target.files[0];
+    if (!file) return;
     var validExtensions = ['.mp3', '.wav'];
-    var invalid = [], toUpload = [];
-
-    files.forEach(function(file) {
-        var ext = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-        if (!validExtensions.includes(ext)) {
-            invalid.push(file.name);
-        } else if (file.size > 100 * 1024 * 1024) {
-            invalid.push(file.name + ' (too large, max 100 MB)');
-        } else {
-            toUpload.push(file);
-        }
-    });
-
-    if (invalid.length) {
-        showNotification('⚠️ Skipped: ' + invalid.join(', '), 'error');
-    }
-    if (!toUpload.length) {
+    var ext = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+    if (!validExtensions.includes(ext)) {
+        showNotification('Invalid file type. Please upload MP3 or WAV files only.', 'error');
         event.target.value = '';
         return;
     }
-
-    uploadFilesSequentially(toUpload, 0, 0, 0, event.target);
-}
-
-function uploadFilesSequentially(files, index, successCount, failCount, inputEl) {
-    if (index >= files.length) {
-        // All done
-        var total = files.length;
-        if (failCount === 0) {
-            showNotification('✅ ' + successCount + ' / ' + total + ' file' + (total > 1 ? 's' : '') + ' uploaded successfully', 'success');
-        } else {
-            showNotification('⚠️ ' + successCount + ' uploaded, ' + failCount + ' failed out of ' + total, 'error');
-        }
-        refreshFileList();
-        if (inputEl) inputEl.value = '';
+    if (file.size > 50 * 1024 * 1024) {
+        showNotification('File is too large. Maximum size is 50MB.', 'error');
+        event.target.value = '';
         return;
     }
-
-    var file = files[index];
-    var progress = '[' + (index + 1) + '/' + files.length + '] ';
-    showNotification('⬆️ ' + progress + file.name, 'success');
-
-    var formData = new FormData();
-    formData.append('file', file);
-
-    fetch('/api/upload-audio', { method: 'POST', body: formData })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            if (data.success) {
-                uploadFilesSequentially(files, index + 1, successCount + 1, failCount, inputEl);
-            } else {
-                showNotification('❌ ' + file.name + ': ' + data.message, 'error');
-                uploadFilesSequentially(files, index + 1, successCount, failCount + 1, inputEl);
-            }
-        })
-        .catch(function(err) {
-            showNotification('❌ ' + file.name + ': ' + (err.message || 'Upload error'), 'error');
-            uploadFilesSequentially(files, index + 1, successCount, failCount + 1, inputEl);
-        });
+    uploadFile(file);
 }
 
 function uploadFile(file) {
-    uploadFilesSequentially([file], 0, 0, 0, document.getElementById('audioFileInput'));
+    var formData = new FormData();
+    formData.append('file', file);
+    showNotification(t('uploadingFile','Uploading') + ' ' + file.name + '...', 'success');
+    fetch('/api/upload-audio', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('✅ ' + data.message, 'success');
+                refreshFileList();
+                document.getElementById('audioFileInput').value = '';
+            } else {
+                showNotification('❌ ' + data.message, 'error');
+            }
+        })
+        .catch(error => showNotification(t('uploadError','Error uploading file') + ': ' + error.message, 'error'));
 }
 
 function refreshFileList() {

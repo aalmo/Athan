@@ -9,7 +9,6 @@ import com.athan.service.IslamicHolidayService;
 import com.athan.service.LogConfigService;
 import com.athan.service.PrayerTimeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -48,12 +47,6 @@ public class AthanController {
     @Autowired
     private LogConfigService logConfigService;
 
-    @Value("${app.version:1.0.0}")
-    private String appVersion;
-
-    @Value("${app.build.number:dev}")
-    private String buildNumber;
-
     @GetMapping("/")
     public String index(Model model) {
         PrayerConfig config = configService.getConfig();
@@ -87,8 +80,6 @@ public class AthanController {
         model.addAttribute("calculationMethods", getCalculationMethods());
         model.addAttribute("timezones", getCommonTimezones());
         model.addAttribute("audioDevices", audioPlayerService.getAvailableAudioDevices());
-        model.addAttribute("appVersion", appVersion);
-        model.addAttribute("buildNumber", buildNumber);
 
         // 24-hour times for countdown JS (locale-independent)
         DateTimeFormatter fmt24 = DateTimeFormatter.ofPattern("HH:mm");
@@ -199,28 +190,22 @@ public class AthanController {
     @ResponseBody
     public ResponseEntity<?> uploadAudioFile(@RequestParam("file") MultipartFile file) {
         try {
+            // Validate file
             if (file.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "No file uploaded"));
             }
 
+            // Get original filename
             String originalFilename = file.getOriginalFilename();
             if (originalFilename == null || originalFilename.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Invalid filename"));
             }
 
-            // Strip any directory path (security: prevent path traversal)
-            String baseName = Paths.get(originalFilename).getFileName().toString();
-
-            // Validate extension
-            String lower = baseName.toLowerCase();
-            if (!lower.endsWith(".mp3") && !lower.endsWith(".wav")) {
+            // Validate file extension
+            String lowercaseFilename = originalFilename.toLowerCase();
+            if (!lowercaseFilename.endsWith(".mp3") && !lowercaseFilename.endsWith(".wav")) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Only MP3 and WAV files are supported"));
             }
-
-            // Sanitize: keep letters, digits, underscores, hyphens, dots — replace everything else with _
-            String nameWithoutExt = baseName.substring(0, baseName.lastIndexOf('.'));
-            String ext = baseName.substring(baseName.lastIndexOf('.'));
-            String safeName = nameWithoutExt.replaceAll("[^a-zA-Z0-9_\\-]", "_") + ext;
 
             // Ensure audio directory exists
             File audioDir = new File("audio");
@@ -228,13 +213,14 @@ public class AthanController {
                 audioDir.mkdirs();
             }
 
-            Path targetPath = Paths.get("audio", safeName);
+            // Save file
+            Path targetPath = Paths.get("audio", originalFilename);
             Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
             return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "File uploaded successfully: " + safeName,
-                "filename", safeName
+                "message", "File uploaded successfully",
+                "filename", originalFilename
             ));
 
         } catch (IOException e) {

@@ -1,493 +1,301 @@
 /*
- * Athan — Islamic Theme System
- * ─────────────────────────────────────────────────────────
- *  EVERYDAY  │ Serenity   │ Sand · Blue · Olive   │ Minimal geometry / kufic lines
- *  RAMADAN   │ Night of Mercy │ Navy · Gold · Silver │ Crescent / lantern outlines
- *  EID       │ Joy & Celebration │ Mint · Gold · White  │ Modern star geometry
- * ─────────────────────────────────────────────────────────
- *  Every theme ships: Light + Dark + System-auto detection
+ * Athan Application - Modern Islamic UI Theme System
+ * Three Adaptive Themes: Everyday, Ramadan, Eid
+ * Blending Arabic/Islamic aesthetics with European minimalism
  */
 
+/* ========================================
+   FONT IMPORTS
+   ======================================== */
+/* Fallback web fonts loaded from Google (used if Al Jazeera Arabic TTF fails) */
 @import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
-/* ═══════════════════════════════════════════════════════
-   SHARED TOKENS — layout, spacing, radii, transitions
-   ═══════════════════════════════════════════════════════ */
 :root {
-    --font-primary: 'Al Jazeera Arabic','Almarai','Tajawal','Inter',sans-serif;
-    --font-display: 'Al Jazeera Arabic','Almarai','Amiri','Inter',sans-serif;
-    --font-mono:    'IBM Plex Mono','SF Mono','Fira Code',monospace;
-
-    --space-xs:2px; --space-s:8px;  --space-m:16px;
-    --space-l:24px; --space-xl:32px; --space-2xl:48px; --space-3xl:64px;
-
-    --radius-s:4px; --radius-m:8px;  --radius-l:12px;
-    --radius-xl:16px; --radius-2xl:24px; --radius-full:9999px;
-
-    --transition-fast:   150ms cubic-bezier(.4,0,.2,1);
-    --transition-base:   260ms cubic-bezier(.4,0,.2,1);
-    --transition-slow:   420ms cubic-bezier(.4,0,.2,1);
-    --transition-spring: 520ms cubic-bezier(.34,1.56,.64,1);
+    /* Al-Jazeera Arabic is self-hosted via @font-face in index.html.
+       Fallback chain: Al Jazeera Arabic → Almarai (Arabic) → Tajawal → Inter (Latin) */
+    --font-arabic: 'Al Jazeera Arabic', 'Almarai', 'Tajawal', sans-serif;
+    --font-latin:  'Al Jazeera Arabic', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* ═══════════════════════════════════════════════════════
-   ①  EVERYDAY  —  SERENITY
-      Sand · Steel Blue · Olive
-      Calm, neutral, minimal kufic geometry
-   ═══════════════════════════════════════════════════════ */
+/* ========================================
+   EVERYDAY THEME - Clean & Peaceful
+   ======================================== */
 :root {
-    /* Palette */
-    --primary:        #4A7C9E;   /* Steel blue — calm & trustworthy        */
-    --primary-dark:   #375F7A;
-    --secondary:      #8B7355;   /* Warm sand-brown                        */
-    --accent:         #6B8C5C;   /* Sage olive                             */
-    --bg-light:       #F5F0E8;   /* Warm parchment                         */
-    --bg-medium:      #EDE5D8;   /* Deeper sand                            */
-    --bg-heavy:       #DDD3C2;
-    --text-primary:   #2C2416;   /* Deep warm charcoal                     */
-    --text-secondary: #6B5C48;   /* Muted sand-brown                       */
-    --card:           #FDFAF5;   /* Off-white parchment                    */
-    --border:         #C9BBAA;   /* Light sand border                      */
-    --shadow:         rgba(44,36,22,.11);
-    --overlay:        rgba(74,124,158,.07);
+    /* Color Palette - Everyday */
+    --everyday-primary: #2C5F8D;          /* Deep Blue - Trust & Peace */
+    --everyday-secondary: #D4AF37;        /* Warm Gold - Subtle Elegance */
+    --everyday-accent: #3A8FB7;           /* Sky Blue */
+    --everyday-bg-light: #FAFBFC;         /* Almost White */
+    --everyday-bg-medium: #F4F6F8;        /* Soft Gray */
+    --everyday-text-primary: #1A2332;     /* Deep Charcoal */
+    --everyday-text-secondary: #5A6C7D;   /* Medium Gray */
+    --everyday-border: #E1E8ED;           /* Light Border */
+    --everyday-card: #FFFFFF;             /* Pure White */
+    --everyday-shadow: rgba(42, 51, 60, 0.12);
+    --everyday-overlay: rgba(44, 95, 141, 0.05);
 
-    /* Gradients */
-    --gradient-1:     linear-gradient(135deg,#375F7A 0%,#4A7C9E 55%,#6B8C5C 100%);
-    --gradient-2:     linear-gradient(135deg,#EDE5D8 0%,#F5F0E8 100%);
-    --gradient-start: #375F7A;
-    --gradient-end:   #6B8C5C;
+    /* Gradients - Everyday */
+    --everyday-gradient-1: linear-gradient(135deg, #2C5F8D 0%, #3A8FB7 100%);
+    --everyday-gradient-2: linear-gradient(135deg, #F4F6F8 0%, #FAFBFC 100%);
+    --everyday-gradient-3: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+}
 
-    /* Header */
-    --header-bg: linear-gradient(135deg,#243D4F 0%,#375F7A 45%,#4A7C9E 75%,#6B8C5C 100%);
-    /* Kufic-inspired repeating SVG lines */
-    --header-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='40' viewBox='0 0 120 40'%3E%3Crect x='0' y='18' width='30' height='2' rx='1' fill='white' fill-opacity='0.06'/%3E%3Crect x='35' y='14' width='14' height='2' rx='1' fill='white' fill-opacity='0.06'/%3E%3Crect x='35' y='22' width='14' height='2' rx='1' fill='white' fill-opacity='0.06'/%3E%3Crect x='35' y='12' width='2' height='16' rx='1' fill='white' fill-opacity='0.06'/%3E%3Crect x='47' y='12' width='2' height='16' rx='1' fill='white' fill-opacity='0.06'/%3E%3Crect x='54' y='18' width='20' height='2' rx='1' fill='white' fill-opacity='0.06'/%3E%3Crect x='54' y='12' width='2' height='8' rx='1' fill='white' fill-opacity='0.06'/%3E%3Crect x='78' y='18' width='40' height='2' rx='1' fill='white' fill-opacity='0.06'/%3E%3C/svg%3E");
-    --header-text:    #FFFFFF;
-    --header-sub:     rgba(255,255,255,.82);
+/* ========================================
+   RAMADAN THEME - Spiritual & Elegant
+   ======================================== */
+:root[data-theme="ramadan"] {
+    /* Color Palette - Ramadan — WCAG AA contrast compliant */
+    --primary: #C5D9C2;                   /* Forest Green — 4.7:1 on white ✓ */
+    --secondary: #B8860B;                 /* Dark Goldenrod — readable on light bg */
+    --accent: #2E8B57;                    /* Sea Green */
+    --bg-light: #F8F9F5;                  /* Soft Cream */
+    --bg-medium: #EEF2E6;                 /* Light Sage */
+    --text-primary: #0F1F14;             /* Near-black with green tint — high contrast */
+    --text-secondary: #3D5244;            /* Readable muted green-gray */
+    --border: #C5D9C2;                    /* Soft Green Border */
+    --card: #FFFFFF;
+    --shadow: rgba(27, 107, 58, 0.14);
+    --overlay: rgba(46, 139, 87, 0.07);
+    --ramadan-moon: #FFEAA7;
+    --ramadan-star: #FDD835;
 
-    /* Prayer items */
-    --time-item-bg:   linear-gradient(135deg,#2D4F63 0%,#4A7C9E 100%);
-    --time-item-next: linear-gradient(135deg,#6B6020 0%,#8B7355 100%);
+    /* Gradients - Ramadan */
+    --gradient-1: linear-gradient(135deg, #1B6B3A 0%, #2E8B57 100%);
+    --gradient-2: linear-gradient(135deg, #EEF2E6 0%, #F8F9F5 100%);
+    --gradient-3: linear-gradient(135deg, rgba(184, 134, 11, 0.12) 0%, rgba(184, 134, 11, 0.04) 100%);
+    --gradient-ramadan-special: linear-gradient(135deg, #1B6B3A 0%, #2E8B57 50%, #B8860B 100%);
+}
 
-    /* Tabs */
-    --tab-bar-bg:    #FDFAF5;
-    --tab-active-bg: #4A7C9E;
-    --tab-panel-top: #4A7C9E;
+/* ========================================
+   EID THEME - Joyful & Festive
+   ======================================== */
+:root[data-theme="eid"] {
+    /* Color Palette - Eid */
+    --primary: #8B1874;                   /* Royal Purple - Celebration */
+    --secondary: #E8B923;                 /* Bright Gold - Joy */
+    --accent: #C2185B;                    /* Magenta Pink */
+    --bg-light: #FDF8F3;                  /* Warm Cream */
+    --bg-medium: #F9F1E7;                 /* Soft Beige */
+    --text-primary: #2A1A2E;              /* Deep Purple-Black */
+    --text-secondary: #5D4E60;            /* Muted Purple-Gray */
+    --border: #E8D7D3;                    /* Soft Rose Border */
+    --card: #FFFFFF;                      /* Pure White */
+    --shadow: rgba(139, 24, 116, 0.18);
+    --overlay: rgba(194, 24, 91, 0.1);
+    --eid-celebration: #FF6B9D;           /* Festive Pink */
+    --eid-sparkle: #FFD700;               /* Gold Sparkle */
 
-    /* Shadows */
-    --shadow-xs:0 1px 2px var(--shadow);
+    /* Gradients - Eid */
+    --gradient-1: linear-gradient(135deg, #8B1874 0%, #C2185B 100%);
+    --gradient-2: linear-gradient(135deg, #F9F1E7 0%, #FDF8F3 100%);
+    --gradient-3: linear-gradient(135deg, rgba(232, 185, 35, 0.2) 0%, rgba(232, 185, 35, 0.08) 100%);
+    --gradient-eid-special: linear-gradient(135deg, #8B1874 0%, #C2185B 50%, #E8B923 100%);
+}
+
+/* ========================================
+   DEFAULT MAPPING (Everyday)
+   ======================================== */
+:root {
+    --primary: var(--everyday-primary);
+    --secondary: var(--everyday-secondary);
+    --accent: var(--everyday-accent);
+    --bg-light: var(--everyday-bg-light);
+    --bg-medium: var(--everyday-bg-medium);
+    --text-primary: var(--everyday-text-primary);
+    --text-secondary: var(--everyday-text-secondary);
+    --border: var(--everyday-border);
+    --card: var(--everyday-card);
+    --shadow: var(--everyday-shadow);
+    --overlay: var(--everyday-overlay);
+
+    --gradient-1: var(--everyday-gradient-1);
+    --gradient-2: var(--everyday-gradient-2);
+    --gradient-3: var(--everyday-gradient-3);
+
+    /* Typography — Al-Jazeera Arabic first (self-hosted), then fallbacks */
+    --font-primary: 'Al Jazeera Arabic', 'Almarai', 'Tajawal', 'Inter', sans-serif;
+    --font-display: 'Al Jazeera Arabic', 'Almarai', 'Amiri', 'Inter', sans-serif;
+    --font-mono:    'IBM Plex Mono', 'SF Mono', 'Fira Code', monospace;
+
+    /* Spacing - Scandinavian Influence */
+    --space-xs: 4px;
+    --space-s: 8px;
+    --space-m: 16px;
+    --space-l: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+    --space-3xl: 64px;
+
+    /* Border Radius */
+    --radius-s: 4px;
+    --radius-m: 8px;
+    --radius-l: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 24px;
+    --radius-full: 9999px;
+
+    /* Shadows - Layered Depth */
+    --shadow-xs: 0 1px 2px var(--shadow);
     --shadow-s: 0 2px 8px var(--shadow);
     --shadow-m: 0 4px 16px var(--shadow);
     --shadow-l: 0 8px 32px var(--shadow);
-    --shadow-xl:0 16px 48px var(--shadow);
+    --shadow-xl: 0 16px 48px var(--shadow);
+
+    /* Islamic Geometric Pattern Opacity */
+    --pattern-opacity: 0.03;
+    --pattern-opacity-hover: 0.06;
+
+    /* Transitions */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* ── EVERYDAY DARK — Deep Slate + warm sand accents ── */
+/* ========================================
+   DARK MODE VARIATIONS
+   ======================================== */
 :root[data-dark-mode="true"] {
-    --primary:        #7AAFC9;
-    --primary-dark:   #4A7C9E;
-    --accent:         #9AB885;
-    --secondary:      #B09878;
-    --bg-light:       #141008;
-    --bg-medium:      #1E1810;
-    --bg-heavy:       #2A2218;
-    --text-primary:   #F0E8D8;
-    --text-secondary: #A89878;
-    --card:           #1E1810;
-    --border:         #352C1E;
-    --shadow:         rgba(0,0,0,.55);
-    --overlay:        rgba(122,175,201,.09);
-    --gradient-1:     linear-gradient(135deg,#1A3040 0%,#2D5068 55%,#3A5E40 100%);
-    --gradient-2:     linear-gradient(135deg,#1E1810 0%,#141008 100%);
-    --header-bg:      linear-gradient(135deg,#0A1018 0%,#1A3040 45%,#2D5068 80%,#253020 100%);
-    --time-item-bg:   linear-gradient(135deg,#1A3040 0%,#2D5068 100%);
-    --time-item-next: linear-gradient(135deg,#3A3010 0%,#5A4828 100%);
-    --tab-bar-bg:     #1E1810;
-    --tab-active-bg:  #7AAFC9;
-    --tab-panel-top:  #4A7C9E;
-    --shadow-xs:0 1px 2px var(--shadow); --shadow-s:0 2px 8px var(--shadow);
-    --shadow-m:0 4px 16px var(--shadow); --shadow-l:0 8px 32px var(--shadow);
-    --shadow-xl:0 16px 48px var(--shadow);
+    /* Everyday Dark — update all mapped variables */
+    --primary: #5BA3E8;                   /* Bright blue — readable on dark */
+    --everyday-primary: #5BA3E8;
+    --bg-light: #111827;
+    --bg-medium: #1E2A3A;
+    --text-primary: #E8EDF4;
+    --text-secondary: #A0A8B8;
+    --card: #1A2332;
+    --border: #2D3B4E;
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --shadow: rgba(0, 0, 0, 0.4);
+    --overlay: rgba(91, 163, 232, 0.08);
+    --gradient-1: linear-gradient(135deg, #2C5F8D 0%, #3A8FB7 100%);
+
+    --everyday-bg-light: #111827;
+    --everyday-bg-medium: #1E2A3A;
+    --everyday-text-primary: #E8EDF4;
+    --everyday-text-secondary: #A0A8B8;
+    --everyday-card: #1A2332;
+    --everyday-border: #2D3B4E;
+    --everyday-shadow: rgba(0, 0, 0, 0.4);
 }
 
-/* ═══════════════════════════════════════════════════════
-   ②  RAMADAN  —  NIGHT OF MERCY
-      Deep Navy · Gold · Silver
-      Spiritual, reflective; crescent & lantern outlines
-   ═══════════════════════════════════════════════════════ */
-:root[data-theme="ramadan"] {
-    --primary:        #C9A84C;   /* Rich Islamic gold                      */
-    --primary-dark:   #A07830;
-    --secondary:      #8BA5C4;   /* Moonlit silver-blue                    */
-    --accent:         #E8D08A;   /* Pale gold shimmer                      */
-    --bg-light:       #F2F4F8;   /* Cool moonlit white                     */
-    --bg-medium:      #E4E8F2;
-    --bg-heavy:       #D0D8EC;
-    --text-primary:   #0D1526;   /* Deep midnight navy                     */
-    --text-secondary: #3A5070;   /* Muted navy-slate                       */
-    --card:           #FFFFFF;
-    --border:         #B8C8E0;
-    --shadow:         rgba(13,21,38,.14);
-    --overlay:        rgba(201,168,76,.09);
-
-    --gradient-1:     linear-gradient(135deg,#0D1526 0%,#1A2A4A 40%,#243560 70%,#A07830 100%);
-    --gradient-2:     linear-gradient(135deg,#E4E8F2 0%,#F2F4F8 100%);
-    --gradient-start: #0D1526;
-    --gradient-end:   #C9A84C;
-
-    /* Header — deep midnight sky with gold crescent/lantern SVG */
-    --header-bg: linear-gradient(155deg,#060C18 0%,#0D1526 30%,#1A2A4A 60%,#0A1830 80%,#3A2800 100%);
-    --header-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3C!-- Crescent --%3E%3Cpath d='M30 20 A14 14 0 1 1 30 48 A10 10 0 1 0 30 20Z' fill='none' stroke='%23C9A84C' stroke-width='1' stroke-opacity='0.18'/%3E%3C!-- Star --%3E%3Cpolygon points='70,15 72,22 79,22 73,27 75,34 70,29 65,34 67,27 61,22 68,22' fill='%23C9A84C' fill-opacity='0.12'/%3E%3C!-- Lantern outline --%3E%3Crect x='42' y='65' width='16' height='22' rx='3' fill='none' stroke='%23C9A84C' stroke-width='0.8' stroke-opacity='0.12'/%3E%3Cline x1='50' y1='58' x2='50' y2='65' stroke='%23C9A84C' stroke-width='0.8' stroke-opacity='0.12'/%3E%3Cellipse cx='50' cy='65' rx='8' ry='3' fill='none' stroke='%23C9A84C' stroke-width='0.8' stroke-opacity='0.10'/%3E%3C/svg%3E");
-    --header-text:    #F0E8C8;   /* Warm gold-white                        */
-    --header-sub:     rgba(240,232,200,.75);
-
-    --time-item-bg:   linear-gradient(135deg,#0D1526 0%,#1A2A4A 60%,#243560 100%);
-    --time-item-next: linear-gradient(135deg,#7A5A18 0%,#C9A84C 100%);
-
-    --tab-bar-bg:    #FFFFFF;
-    --tab-active-bg: #1A2A4A;
-    --tab-panel-top: #C9A84C;
-
-    --shadow-xs:0 1px 2px var(--shadow); --shadow-s:0 2px 8px var(--shadow);
-    --shadow-m:0 4px 16px var(--shadow); --shadow-l:0 8px 32px var(--shadow);
-    --shadow-xl:0 16px 48px var(--shadow);
-}
-
-/* ── RAMADAN DARK — Abyss navy + gleaming gold ── */
 :root[data-theme="ramadan"][data-dark-mode="true"] {
-    --primary:        #E8C86A;
-    --primary-dark:   #C9A84C;
-    --secondary:      #A0B8D8;
-    --accent:         #F0DC98;
-    --bg-light:       #060C18;
-    --bg-medium:      #0D1526;
-    --bg-heavy:       #1A2A4A;
-    --text-primary:   #EEE8D0;
-    --text-secondary: #8BA8C8;
-    --card:           #0D1526;
-    --border:         #1A2A4A;
-    --shadow:         rgba(0,0,0,.65);
-    --overlay:        rgba(232,200,106,.11);
-    --gradient-1:     linear-gradient(135deg,#020508 0%,#0D1526 40%,#1A2A4A 70%,#3A2800 100%);
-    --gradient-2:     linear-gradient(135deg,#0D1526 0%,#060C18 100%);
-    --header-bg:      linear-gradient(155deg,#020508 0%,#060C18 30%,#0D1526 65%,#251800 100%);
-    --time-item-bg:   linear-gradient(135deg,#060C18 0%,#0D1526 100%);
-    --time-item-next: linear-gradient(135deg,#5A4010 0%,#8A6820 100%);
-    --tab-bar-bg:     #0D1526;
-    --tab-active-bg:  #1A2A4A;
-    --tab-panel-top:  #C9A84C;
-    --shadow-xs:0 1px 2px var(--shadow); --shadow-s:0 2px 8px var(--shadow);
-    --shadow-m:0 4px 16px var(--shadow); --shadow-l:0 8px 32px var(--shadow);
-    --shadow-xl:0 16px 48px var(--shadow);
+    /* Ramadan Dark — lighter greens for dark backgrounds */
+    --primary: #4ABA78;                   /* Bright mint green — readable on dark bg */
+    --secondary: #D4A843;                 /* Warm gold */
+    --bg-light: #121A15;
+    --bg-medium: #1A2520;
+    --text-primary: #E4F0E8;             /* Near-white with warm green tint */
+    --text-secondary: #8DB89A;            /* Muted sage */
+    --card: #1A2520;
+    --border: #2A3E30;
+    --shadow: rgba(0, 0, 0, 0.5);
+    --overlay: rgba(74, 186, 120, 0.1);
+    --gradient-1: linear-gradient(135deg, #1B6B3A 0%, #2E8B57 100%);
 }
 
-/* ═══════════════════════════════════════════════════════
-   ③  EID  —  JOY & CELEBRATION
-      Mint · Gold · White
-      Festive, bright; modern Islamic star geometry
-   ═══════════════════════════════════════════════════════ */
-:root[data-theme="eid"] {
-    --primary:        #00897B;   /* Jewel mint / Islamic teal              */
-    --primary-dark:   #00695C;
-    --secondary:      #D4A017;   /* Celebration gold                       */
-    --accent:         #4DB6AC;   /* Light mint                             */
-    --bg-light:       #F0FDFB;   /* Bright mint-white                      */
-    --bg-medium:      #CCEDE9;
-    --bg-heavy:       #A8DDD8;
-    --text-primary:   #00302B;   /* Deep teal-black                        */
-    --text-secondary: #00695C;
-    --card:           #FFFFFF;
-    --border:         #80CBC4;
-    --shadow:         rgba(0,48,43,.13);
-    --overlay:        rgba(0,137,123,.08);
-
-    --gradient-1:     linear-gradient(135deg,#004D40 0%,#00897B 50%,#D4A017 100%);
-    --gradient-2:     linear-gradient(135deg,#CCEDE9 0%,#F0FDFB 100%);
-    --gradient-start: #004D40;
-    --gradient-end:   #4DB6AC;
-
-    /* Header — crisp mint to deep teal with golden star geometry */
-    --header-bg: linear-gradient(135deg,#003530 0%,#005A50 30%,#00897B 65%,#006B5A 100%);
-    --header-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90' viewBox='0 0 90 90'%3E%3C!-- 8-pointed star --%3E%3Cpath d='M45 10 L48 30 L65 20 L55 37 L75 40 L55 43 L65 60 L48 50 L45 70 L42 50 L25 60 L35 43 L15 40 L35 37 L25 20 L42 30Z' fill='none' stroke='%23D4A017' stroke-width='1' stroke-opacity='0.14'/%3E%3C!-- centre dot --%3E%3Ccircle cx='45' cy='40' r='3' fill='%23D4A017' fill-opacity='0.10'/%3E%3C!-- corner marks --%3E%3Ccircle cx='12' cy='12' r='2.5' fill='%23D4A017' fill-opacity='0.10'/%3E%3Ccircle cx='78' cy='78' r='2.5' fill='%23D4A017' fill-opacity='0.10'/%3E%3Ccircle cx='78' cy='12' r='2.5' fill='white' fill-opacity='0.07'/%3E%3Ccircle cx='12' cy='78' r='2.5' fill='white' fill-opacity='0.07'/%3E%3C/svg%3E");
-    --header-text:    #FFFFFF;
-    --header-sub:     rgba(255,255,255,.86);
-
-    --time-item-bg:   linear-gradient(135deg,#004D40 0%,#00897B 100%);
-    --time-item-next: linear-gradient(135deg,#8A6800 0%,#D4A017 100%);
-
-    --tab-bar-bg:    #FFFFFF;
-    --tab-active-bg: #00897B;
-    --tab-panel-top: #00897B;
-
-    --shadow-xs:0 1px 2px var(--shadow); --shadow-s:0 2px 8px var(--shadow);
-    --shadow-m:0 4px 16px var(--shadow); --shadow-l:0 8px 32px var(--shadow);
-    --shadow-xl:0 16px 48px var(--shadow);
-}
-
-/* ── EID DARK — Deep teal abyss + gold stars ── */
 :root[data-theme="eid"][data-dark-mode="true"] {
-    --primary:        #4DB6AC;
-    --primary-dark:   #00897B;
-    --secondary:      #FFD54F;
-    --accent:         #80CBC4;
-    --bg-light:       #001A18;
-    --bg-medium:      #002E28;
-    --bg-heavy:       #004038;
-    --text-primary:   #E0F7F5;
-    --text-secondary: #80CBC4;
-    --card:           #002E28;
-    --border:         #004038;
-    --shadow:         rgba(0,0,0,.60);
-    --overlay:        rgba(77,182,172,.10);
-    --gradient-1:     linear-gradient(135deg,#000D0B 0%,#002E28 50%,#5A4200 100%);
-    --gradient-2:     linear-gradient(135deg,#002E28 0%,#001A18 100%);
-    --header-bg:      linear-gradient(135deg,#000A09 0%,#001A18 35%,#002E28 70%,#3A2A00 100%);
-    --time-item-bg:   linear-gradient(135deg,#001A18 0%,#002E28 100%);
-    --time-item-next: linear-gradient(135deg,#5A4200 0%,#8A6800 100%);
-    --tab-bar-bg:     #002E28;
-    --tab-active-bg:  #4DB6AC;
-    --tab-panel-top:  #00897B;
-    --shadow-xs:0 1px 2px var(--shadow); --shadow-s:0 2px 8px var(--shadow);
-    --shadow-m:0 4px 16px var(--shadow); --shadow-l:0 8px 32px var(--shadow);
-    --shadow-xl:0 16px 48px var(--shadow);
+    /* Eid Dark */
+    --primary: #D946EF;
+    --bg-light: #2A1A2E;
+    --bg-medium: #3D2842;
+    --text-primary: #FAE8FF;
+    --text-secondary: #D8B4E8;
+    --card: #2E1F31;
+    --border: #4A3450;
+    --shadow: rgba(0, 0, 0, 0.5);
 }
 
-/* ═══════════════════════════════════════════════════════
-   SYSTEM DARK — follows OS if user hasn't overridden
-   ═══════════════════════════════════════════════════════ */
-@media (prefers-color-scheme: dark) {
-    :root:not([data-dark-mode="false"]):not([data-theme="ramadan"]):not([data-theme="eid"]) {
-        --primary:        #7AAFC9; --primary-dark:#4A7C9E; --accent:#9AB885;
-        --bg-light:#141008; --bg-medium:#1E1810; --bg-heavy:#2A2218;
-        --text-primary:#F0E8D8; --text-secondary:#A89878;
-        --card:#1E1810; --border:#352C1E; --shadow:rgba(0,0,0,.55);
-        --overlay:rgba(122,175,201,.09);
-        --gradient-1:linear-gradient(135deg,#1A3040 0%,#2D5068 55%,#3A5E40 100%);
-        --gradient-2:linear-gradient(135deg,#1E1810 0%,#141008 100%);
-        --header-bg:linear-gradient(135deg,#0A1018 0%,#1A3040 45%,#2D5068 80%,#253020 100%);
-        --time-item-bg:linear-gradient(135deg,#1A3040 0%,#2D5068 100%);
-        --time-item-next:linear-gradient(135deg,#3A3010 0%,#5A4828 100%);
-        --tab-bar-bg:#1E1810; --tab-active-bg:#7AAFC9; --tab-panel-top:#4A7C9E;
-        --shadow-xs:0 1px 2px var(--shadow); --shadow-s:0 2px 8px var(--shadow);
-        --shadow-m:0 4px 16px var(--shadow); --shadow-l:0 8px 32px var(--shadow);
-        --shadow-xl:0 16px 48px var(--shadow);
-    }
-}
-
-/* ═══════════════════════════════════════════════════════
-   APPLY VARIABLES TO EVERY ELEMENT
-   ═══════════════════════════════════════════════════════ */
-
-body {
-    background: var(--bg-light) !important;
-    color: var(--text-primary) !important;
-}
-
-/* ── Header ── */
-.header {
-    background: var(--header-bg) !important;
-    position: relative;
-    overflow: hidden;
-}
-.header::before {
-    content:'';
-    position:absolute; inset:0;
-    background-image: var(--header-pattern);
-    background-size: 120px 40px;
-    pointer-events:none; z-index:0;
-}
-:root[data-theme="ramadan"] .header::before { background-size: 100px 100px; }
-:root[data-theme="eid"]     .header::before { background-size: 90px 90px; }
-.header > * { position:relative; z-index:1; }
-.header h1, #headerTitle   { color: var(--header-text) !important; }
-.header p,  #headerSubtitle { color: var(--header-sub)  !important; }
-.dark-mode-toggle, .language-toggle {
-    background: rgba(255,255,255,.15) !important;
-    border-color: rgba(255,255,255,.25) !important;
-    color: var(--header-text) !important;
-    backdrop-filter: blur(8px);
-}
-.dark-mode-toggle:hover, .language-toggle:hover {
-    background: rgba(255,255,255,.25) !important;
-}
-
-/* ── Countdown ── */
-#countdownBanner { background: var(--gradient-1) !important; }
-
-/* ── Prayer time items ── */
-.time-item { background: var(--time-item-bg) !important; border:none !important; }
-.time-item h3 { color: rgba(255,255,255,.90) !important; }
-.time-item .time { color: #FFFFFF !important; }
-.time-item.next-prayer {
-    background: var(--time-item-next) !important;
-    box-shadow: 0 0 0 3px rgba(255,255,255,.30), var(--shadow-m) !important;
-    transform: scale(1.05);
-}
-
-/* ── Cards ── */
-.config-card, .card {
-    background: var(--card) !important;
-    border-color: var(--border) !important;
-    color: var(--text-primary) !important;
-}
-
-/* ── Tab system ── */
-.cfg-tab-bar { background:var(--tab-bar-bg) !important; border-color:var(--border) !important; }
-.cfg-tab-btn { color:var(--text-secondary) !important; }
-.cfg-tab-btn:hover { background:var(--bg-medium) !important; color:var(--text-primary) !important; }
-.cfg-tab-btn.active { background:var(--tab-active-bg) !important; color:#fff !important; }
-.cfg-tab-panels {
-    background:var(--card) !important;
-    border-color:var(--border) !important;
-    border-top-color:var(--tab-panel-top) !important;
-}
-
-/* ── Forms ── */
-.form-input-clean, select.form-input-clean {
-    background: var(--bg-medium) !important;
-    color: var(--text-primary) !important;
-    border-color: var(--border) !important;
-}
-.form-input-clean:focus {
-    border-color: var(--primary) !important;
-    box-shadow: 0 0 0 3px var(--overlay) !important;
-    outline: none;
-}
-.form-label-clean { color:var(--text-primary)   !important; }
-.form-hint-clean  { color:var(--text-secondary) !important; }
-
-/* ── Buttons ── */
-.btn-primary {
-    background:var(--primary) !important;
-    border-color:var(--primary-dark,var(--primary)) !important;
-    color:#fff !important;
-}
-.btn-primary:hover { filter:brightness(1.12); }
-.btn-secondary {
-    background:var(--bg-medium) !important;
-    border-color:var(--border) !important;
-    color:var(--text-primary) !important;
-}
-
-/* ── Section headers ── */
-.section-header { border-color:var(--border) !important; }
-.section-header > span { color:var(--text-primary) !important; }
-.section-header-icon { color:var(--primary) !important; }
-
-/* ── Toggles ── */
-.toggle-slider { background:var(--border) !important; }
-input:checked + .toggle-slider { background:var(--primary) !important; }
-.toggle-label-clean { color:var(--text-primary) !important; }
-
-/* ── Collapsibles ── */
-.collapsible-header {
-    background:var(--bg-medium) !important;
-    color:var(--text-primary) !important;
-    border-color:var(--border) !important;
-}
-.collapsible-body { background:var(--card) !important; border-color:var(--border) !important; }
-
-/* ── Misc ── */
-input[type="range"] { accent-color:var(--primary); }
-#logViewer { background:#0d1117 !important; color:#c9d1d9 !important; }
-.notification { background:var(--primary) !important; }
-.prayer-label { color:var(--primary) !important; }
-
-/* ═══════════════════════════════════════════════════════
-   EVERYDAY EXTRAS — sand body texture, kufic dividers
-   ═══════════════════════════════════════════════════════ */
-:root:not([data-theme="ramadan"]):not([data-theme="eid"]) body {
+/* ========================================
+   ISLAMIC GEOMETRIC PATTERNS (SVG)
+   ======================================== */
+.pattern-overlay {
+    position: absolute;
+    inset: 0;
+    opacity: var(--pattern-opacity);
+    pointer-events: none;
     background-image:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='4' viewBox='0 0 200 4'%3E%3Crect x='0' y='1' width='40' height='1.5' rx='0.5' fill='%234A7C9E' fill-opacity='0.06'/%3E%3Crect x='46' y='0.5' width='18' height='1.5' rx='0.5' fill='%234A7C9E' fill-opacity='0.06'/%3E%3Crect x='46' y='2.5' width='18' height='1' rx='0.5' fill='%234A7C9E' fill-opacity='0.06'/%3E%3Crect x='70' y='1' width='30' height='1.5' rx='0.5' fill='%234A7C9E' fill-opacity='0.06'/%3E%3Crect x='106' y='1' width='50' height='1.5' rx='0.5' fill='%234A7C9E' fill-opacity='0.04'/%3E%3C/svg%3E") !important;
-    background-repeat: repeat-x !important;
-    background-position: bottom 60px center !important;
-    background-size: 200px 4px !important;
-    background-attachment: fixed !important;
-}
-:root:not([data-theme="ramadan"]):not([data-theme="eid"]) .cfg-tab-btn.active {
-    box-shadow: inset 0 -2px 0 var(--accent) !important;
-}
-:root:not([data-theme="ramadan"]):not([data-theme="eid"]) .config-card {
-    border-left: 3px solid var(--bg-medium) !important;
+        repeating-linear-gradient(45deg, transparent, transparent 10px, var(--primary) 10px, var(--primary) 11px),
+        repeating-linear-gradient(-45deg, transparent, transparent 10px, var(--primary) 10px, var(--primary) 11px);
+    background-size: 30px 30px;
+    transition: opacity var(--transition-base);
 }
 
-/* ═══════════════════════════════════════════════════════
-   RAMADAN EXTRAS — midnight glow, gold top-border, crescent header ring
-   ═══════════════════════════════════════════════════════ */
-:root[data-theme="ramadan"] .header {
-    box-shadow: 0 10px 60px rgba(13,21,38,.70), 0 0 0 1px rgba(201,168,76,.20) !important;
-}
-:root[data-theme="ramadan"] #headerTitle::before { content:'🌙 '; }
-:root[data-theme="ramadan"] #headerTitle::after  { content:' 🌙'; }
-
-/* Gold top stripe on every card */
-:root[data-theme="ramadan"] .config-card {
-    border-top: 2px solid rgba(201,168,76,.35) !important;
-}
-/* Gold active tab stripe */
-:root[data-theme="ramadan"] .cfg-tab-btn.active {
-    background: var(--tab-active-bg) !important;
-    box-shadow: inset 0 -2px 0 #C9A84C !important;
-}
-:root[data-theme="ramadan"] .cfg-tab-panels {
-    border-top-color: #C9A84C !important;
-}
-/* Slightly warmer card tint in dark mode */
-:root[data-theme="ramadan"][data-dark-mode="true"] .config-card {
-    background: var(--card) !important;
-    border-top-color: rgba(232,200,106,.25) !important;
-}
-/* Ramadan next-prayer — gold lantern glow */
-:root[data-theme="ramadan"] .time-item.next-prayer {
-    animation: ramadan-glow 3s ease-in-out infinite !important;
-}
-@keyframes ramadan-glow {
-    0%,100% { box-shadow:0 0 0 3px rgba(201,168,76,.50), 0 6px 28px rgba(13,21,38,.40); }
-    50%      { box-shadow:0 0 0 7px rgba(201,168,76,.18), 0 6px 40px rgba(13,21,38,.55); }
+.pattern-mashrabiya {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
-/* ═══════════════════════════════════════════════════════
-   EID EXTRAS — star shimmer, mint glow, festive gold stripe
-   ═══════════════════════════════════════════════════════ */
-:root[data-theme="eid"] .header {
-    box-shadow: 0 10px 56px rgba(0,48,43,.55), 0 0 0 1px rgba(212,160,23,.22) !important;
-}
-:root[data-theme="eid"] #headerTitle::before { content:'✨ '; }
-:root[data-theme="eid"] #headerTitle::after  { content:' ✨'; }
-
-/* Gold top stripe on every card */
-:root[data-theme="eid"] .config-card {
-    border-top: 2px solid rgba(212,160,23,.35) !important;
-}
-/* Active tab bar in mint */
-:root[data-theme="eid"] .cfg-tab-panels {
-    border-top-color: #D4A017 !important;
-}
-/* Eid next-prayer — star sparkle pulse */
-:root[data-theme="eid"] .time-item.next-prayer {
-    animation: eid-sparkle 2.4s ease-in-out infinite !important;
-}
-@keyframes eid-sparkle {
-    0%,100% { box-shadow:0 0 0 3px rgba(212,160,23,.55), 0 6px 24px rgba(0,137,123,.35); }
-    50%      { box-shadow:0 0 0 9px rgba(212,160,23,.12), 0 6px 36px rgba(0,137,123,.50); }
+.pattern-star {
+    background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.03'%3E%3Cpath d='M40 20l5.878 17.756L64 40l-18.122 2.244L40 60l-5.878-17.756L16 40l18.122-2.244z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
-/* ═══════════════════════════════════════════════════════
-   SMOOTH TRANSITIONS — all elements, except layout ones
-   ═══════════════════════════════════════════════════════ */
-*, *::before, *::after {
+.pattern-arabesque {
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 0C22.4 0 0 22.4 0 50s22.4 50 50 50 50-22.4 50-50S77.6 0 50 0zm0 90c-22.1 0-40-17.9-40-40s17.9-40 40-40 40 17.9 40 40-17.9 40-40 40z' fill='%23000000' fill-opacity='0.03'/%3E%3C/svg%3E");
+}
+
+/* ========================================
+   THEME-SPECIFIC DECORATIVE ELEMENTS
+   ======================================== */
+/* Ramadan Crescent */
+.ramadan-crescent::before {
+    content: '🌙';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 2em;
+    opacity: 0.15;
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Eid Celebration Confetti */
+.eid-confetti::before {
+    content: '✨';
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    font-size: 1.5em;
+    opacity: 0.2;
+    animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+@keyframes sparkle {
+    0%, 100% { opacity: 0.1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(1.1); }
+}
+
+/* ========================================
+   THEME TRANSITION ANIMATIONS
+   ======================================== */
+.theme-transition {
+    transition:
+        background-color var(--transition-slow),
+        color var(--transition-slow),
+        border-color var(--transition-slow),
+        box-shadow var(--transition-slow);
+}
+
+/* Smooth theme switch */
+* {
     transition:
         background-color var(--transition-base),
-        border-color     var(--transition-base),
-        color            var(--transition-base),
-        box-shadow       var(--transition-base);
+        color var(--transition-base),
+        border-color var(--transition-base);
 }
-.cfg-tab-panel, .collapsible-body, #logViewer,
-input[type="range"], input[type="checkbox"] { transition:none !important; }
 
-/* ═══════════════════════════════════════════════════════
-   RESPONSIVE
-   ═══════════════════════════════════════════════════════ */
-@media (max-width:768px) {
-    :root { --space-xl:24px; --space-2xl:32px; --space-3xl:48px; }
+
+/* ========================================
+   RESPONSIVE BREAKPOINTS
+   ======================================== */
+@media (max-width: 768px) {
+    :root {
+        --space-xl: 24px;
+        --space-2xl: 32px;
+        --space-3xl: 48px;
+    }
 }
 
