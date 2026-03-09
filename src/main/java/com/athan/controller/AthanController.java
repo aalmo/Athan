@@ -190,22 +190,28 @@ public class AthanController {
     @ResponseBody
     public ResponseEntity<?> uploadAudioFile(@RequestParam("file") MultipartFile file) {
         try {
-            // Validate file
             if (file.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "No file uploaded"));
             }
 
-            // Get original filename
             String originalFilename = file.getOriginalFilename();
             if (originalFilename == null || originalFilename.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Invalid filename"));
             }
 
-            // Validate file extension
-            String lowercaseFilename = originalFilename.toLowerCase();
-            if (!lowercaseFilename.endsWith(".mp3") && !lowercaseFilename.endsWith(".wav")) {
+            // Strip any directory path (security: prevent path traversal)
+            String baseName = Paths.get(originalFilename).getFileName().toString();
+
+            // Validate extension
+            String lower = baseName.toLowerCase();
+            if (!lower.endsWith(".mp3") && !lower.endsWith(".wav")) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Only MP3 and WAV files are supported"));
             }
+
+            // Sanitize: keep letters, digits, underscores, hyphens, dots — replace everything else with _
+            String nameWithoutExt = baseName.substring(0, baseName.lastIndexOf('.'));
+            String ext = baseName.substring(baseName.lastIndexOf('.'));
+            String safeName = nameWithoutExt.replaceAll("[^a-zA-Z0-9_\\-]", "_") + ext;
 
             // Ensure audio directory exists
             File audioDir = new File("audio");
@@ -213,14 +219,13 @@ public class AthanController {
                 audioDir.mkdirs();
             }
 
-            // Save file
-            Path targetPath = Paths.get("audio", originalFilename);
+            Path targetPath = Paths.get("audio", safeName);
             Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
             return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "File uploaded successfully",
-                "filename", originalFilename
+                "message", "File uploaded successfully: " + safeName,
+                "filename", safeName
             ));
 
         } catch (IOException e) {
