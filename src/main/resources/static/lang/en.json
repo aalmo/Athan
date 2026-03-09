@@ -77,6 +77,12 @@
     "configSaved": "✅ Configuration saved successfully",
     "configError": "Error saving configuration",
     "specialModes": "🌙 Special Modes",
+    "specialModesDesc": "Enable Ramadan or Islamic Holiday modes to automatically switch to custom audio configurations on special occasions. Each mode can have its own unique set of Athan files.",
+    "prayerAudioConfigDesc": "Assign one or more audio files to each prayer. Files play in sequence when the prayer time arrives. Drag to reorder, click ▶️ Test to preview.",
+    "files": "files",
+    "times": "times",
+    "modeActive": "Active",
+    "modeOff": "Off",
     "tasbee7Header": "✨ Tasbee7 Times",
     "tasbee7_1_desc": "1/3 of time between Fajr and midnight",
     "tasbee7_2_desc": "2/3 of time between Fajr and midnight",
@@ -154,7 +160,16 @@
     "logConfigError": "Error saving log config",
     "logCopied": "📋 Logs copied to clipboard",
     "logCopyError": "Could not copy to clipboard",
-    "logNothingToCopy": "No logs to copy"
+    "logNothingToCopy": "No logs to copy",
+
+    "tabLocation": "Location & Audio",
+    "tabSpecial": "Special Modes",
+    "tabPrayerAudio": "Prayer Audio",
+    "tabRamadan": "Ramadan Audio",
+    "tabTakbeer": "Takbeer",
+    "tabAudioFiles": "Audio Files",
+    "tabTheme": "Theme",
+    "tabLogs": "Logs"
   }
 }
 

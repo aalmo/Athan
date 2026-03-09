@@ -77,6 +77,12 @@
     "configSaved": "✅ Configuration enregistrée avec succès",
     "configError": "Erreur lors de l'enregistrement de la configuration",
     "specialModes": "🌙 Modes Spéciaux",
+    "specialModesDesc": "Activez le mode Ramadan ou Fêtes Islamiques pour passer automatiquement à des configurations audio personnalisées lors des occasions spéciales. Chaque mode peut avoir son propre ensemble de fichiers Athan.",
+    "prayerAudioConfigDesc": "Assignez un ou plusieurs fichiers audio à chaque prière. Les fichiers sont joués en séquence à l'heure de la prière. Glissez pour réorganiser, cliquez ▶️ Tester pour prévisualiser.",
+    "files": "fichiers",
+    "times": "horaires",
+    "modeActive": "Actif",
+    "modeOff": "Inactif",
     "tasbee7Header": "✨ Horaires Tasbee7",
     "tasbee7_1_desc": "1/3 du temps entre Fajr et minuit",
     "tasbee7_2_desc": "2/3 du temps entre Fajr et minuit",
@@ -154,6 +160,15 @@
     "logConfigError": "Erreur lors de l'enregistrement de la configuration des journaux",
     "logCopied": "📋 Journaux copiés dans le presse-papiers",
     "logCopyError": "Impossible de copier dans le presse-papiers",
-    "logNothingToCopy": "Aucun journal à copier"
+    "logNothingToCopy": "Aucun journal à copier",
+
+    "tabLocation": "Localisation & Audio",
+    "tabSpecial": "Modes Spéciaux",
+    "tabPrayerAudio": "Audio Prières",
+    "tabRamadan": "Audio Ramadan",
+    "tabTakbeer": "Takbeer",
+    "tabAudioFiles": "Fichiers Audio",
+    "tabTheme": "Thème",
+    "tabLogs": "Journaux"
   }
 }

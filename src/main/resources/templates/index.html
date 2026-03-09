@@ -221,6 +221,89 @@
                 gap: 14px !important;
             }
         }
+
+        /* ════════════════════════════════════════
+           TAB SYSTEM
+           ════════════════════════════════════════ */
+        .cfg-tabs-wrapper {
+            margin-top: var(--space-xl);
+        }
+
+        /* Scrollable tab bar */
+        .cfg-tab-bar {
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 6px 6px 0;
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-bottom: none;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        }
+        .cfg-tab-bar::-webkit-scrollbar { display: none; }
+
+        .cfg-tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 18px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.88rem;
+            border-radius: var(--radius-l) var(--radius-l) 0 0;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.18s;
+            position: relative;
+        }
+        .cfg-tab-btn:hover {
+            background: var(--bg-medium);
+            color: var(--text-primary);
+        }
+        .cfg-tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        .cfg-tab-btn .tab-badge {
+            background: rgba(255,255,255,0.25);
+            color: white;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 1px 7px;
+            border-radius: 20px;
+            display: none;
+        }
+        .cfg-tab-btn.active .tab-badge { display: inline; }
+
+        /* Tab content panels */
+        .cfg-tab-panels {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-top: 3px solid var(--primary);
+            border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+            padding: var(--space-2xl);
+        }
+
+        .cfg-tab-panel { display: none; }
+        .cfg-tab-panel.active { display: block; }
+
+        /* Save button inside tabs */
+        .tab-save-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: var(--space-2xl);
+            padding-top: var(--space-l);
+            border-top: 1px solid var(--border);
+            gap: var(--space-m);
+        }
+
+        @media (max-width: 600px) {
+            .cfg-tab-btn { padding: 9px 12px; font-size: 0.8rem; }
+            .cfg-tab-panels { padding: var(--space-l); }
+        }
     </style>
 
     <!-- Modern Theme Container -->
@@ -306,7 +389,7 @@
 
         <div class="grid grid-2 cards-container">
             <!-- Prayer Times Card -->
-            <div class="card prayer-times">
+            <div class="card prayer-times" style="grid-column: 1 / -1;">
                 <div class="section-header">
                     <span data-i18n="prayerTimesTitle">Today's Prayer Times</span>
                 </div>
@@ -342,822 +425,475 @@
                     </div>
                 </div>
             </div>
-
-            <!-- ============================================
-                 CONFIGURATION - Clean 2-Column Layout
-                 ============================================ -->
-
-            <!-- LEFT COLUMN: Location & Prayer Settings -->
-            <div class="config-card">
-                <div class="section-header" style="margin-top: 0;">
-                    <span class="section-header-icon">📍</span>
-                    <span data-i18n="locationTitle">Location Settings</span>
-                </div>
-
-                <div class="form-group-clean">
-                    <label class="form-label-clean" data-i18n="city">City</label>
-                    <input type="text" class="form-input-clean" id="city" th:value="${config.city}" placeholder="Enter city name">
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-m);">
-                    <div class="form-group-clean">
-                        <label class="form-label-clean" data-i18n="latitude">Latitude</label>
-                        <input type="number" step="0.0001" class="form-input-clean" id="latitude" th:value="${config.latitude}" placeholder="21.4225">
-                    </div>
-
-                    <div class="form-group-clean">
-                        <label class="form-label-clean" data-i18n="longitude">Longitude</label>
-                        <input type="number" step="0.0001" class="form-input-clean" id="longitude" th:value="${config.longitude}" placeholder="39.8262">
-                    </div>
-                </div>
-
-                <div class="form-group-clean">
-                    <label class="form-label-clean" data-i18n="timezone">Timezone</label>
-                    <select id="timezone" class="form-input-clean">
-                        <option th:each="tz : ${timezones}"
-                                th:value="${tz}"
-                                th:text="${tz}"
-                                th:selected="${tz == config.timezone}">
-                        </option>
-                    </select>
-                </div>
-
-                <div class="form-group-clean">
-                    <label class="form-label-clean" data-i18n="calculationMethod">Calculation Method</label>
-                    <select id="calculationMethod" class="form-input-clean">
-                        <option th:each="method : ${calculationMethods}"
-                                th:value="${method}"
-                                th:text="${method}"
-                                th:selected="${method == config.calculationMethod}">
-                        </option>
-                    </select>
-                    <span class="form-hint-clean" data-i18n="calculationMethodHint">Islamic calculation method for your region</span>
-                </div>
-
-                <!-- Fajr & Isha Time Offsets -->
-                <div style="margin-top: var(--space-l); padding-top: var(--space-l); border-top: 1px solid var(--border);">
-                    <label class="form-label-clean" data-i18n="prayerOffsets">⏱ Prayer Time Offsets</label>
-                    <span class="form-hint-clean" style="display:block; margin-bottom: var(--space-m);" data-i18n="prayerOffsetsHint">Adjust Fajr and Maghrib times by ± minutes</span>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-m);">
-                        <div class="form-group-clean" style="margin-bottom:0;">
-                            <label class="form-label-clean" data-i18n="fajrOffset">Fajr Offset (min)</label>
-                            <input type="number" class="form-input-clean offset-input" id="fajrOffsetMinutes"
-                                   th:value="${config.fajrOffsetMinutes}"
-                                   min="-120" max="120" step="1" placeholder="0"
-                                   oninput="updateOffsetPreview('fajr', this.value)">
-                            <span class="form-hint-clean offset-preview" id="fajrOffsetPreview"></span>
-                        </div>
-                        <div class="form-group-clean" style="margin-bottom:0;">
-                            <label class="form-label-clean" data-i18n="maghribOffset">Maghrib Offset (min)</label>
-                            <input type="number" class="form-input-clean offset-input" id="maghribOffsetMinutes"
-                                   th:value="${config.maghribOffsetMinutes}"
-                                   min="-120" max="120" step="1" placeholder="0"
-                                   oninput="updateOffsetPreview('maghrib', this.value)">
-                            <span class="form-hint-clean offset-preview" id="maghribOffsetPreview"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quick Cities -->
-                <div style="margin-top: var(--space-xl); padding-top: var(--space-l); border-top: 1px solid var(--border);">
-                    <label class="form-label-clean" data-i18n="popularCities">Quick Select City</label>
-                    <div class="city-grid-clean">
-                        <button class="city-btn-clean" onclick="setCity('Mecca', 21.4225, 39.8262, 'Asia/Riyadh')">🕋 Mecca</button>
-                        <button class="city-btn-clean" onclick="setCity('Medina', 24.5247, 39.5692, 'Asia/Riyadh')">🕌 Medina</button>
-                        <button class="city-btn-clean" onclick="setCity('Dubai', 25.2048, 55.2708, 'Asia/Dubai')">Dubai</button>
-                        <button class="city-btn-clean" onclick="setCity('Cairo', 30.0444, 31.2357, 'Africa/Cairo')">Cairo</button>
-                        <button class="city-btn-clean" onclick="setCity('Istanbul', 41.0082, 28.9784, 'Europe/Istanbul')">Istanbul</button>
-                        <button class="city-btn-clean" onclick="setCity('London', 51.5074, -0.1278, 'Europe/London')">London</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- RIGHT COLUMN: Audio Settings -->
-            <div class="config-card">
-                <div class="section-header" style="margin-top: 0;">
-                    <span class="section-header-icon">🔊</span>
-                    <span data-i18n="audioTitle">Audio Settings</span>
-                </div>
-
-                <div class="toggle-group-clean">
-                    <label class="toggle-label-clean">
-                        <span data-i18n="enableAthan">Enable Athan</span>
-                    </label>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="audioEnabled" th:checked="${config.audioConfig.enabled}">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-
-                <div class="form-group-clean">
-                    <label class="form-label-clean" data-i18n="volume">Volume</label>
-                    <div class="volume-control">
-                        <input type="range" id="volume" min="0" max="100" th:value="${config.audioConfig.volume}" style="flex: 1;">
-                        <span id="volumeValue" th:text="${config.audioConfig.volume} + '%'" style="min-width: 50px; text-align: right; font-weight: 600; color: var(--primary);">80%</span>
-                    </div>
-                </div>
-
-                <div class="form-group-clean">
-                    <label class="form-label-clean" data-i18n="audioOutputDevice">Audio Output</label>
-                    <select id="outputDevice" class="form-input-clean">
-                        <option value="default" th:selected="${config.audioConfig.outputDevice == null || config.audioConfig.outputDevice == 'default'}">
-                            🔊 System Default
-                        </option>
-                        <option th:each="device : ${audioDevices}"
-                                th:value="${device.id}"
-                                th:text="${device.name}"
-                                th:selected="${device.id == config.audioConfig.outputDevice}">
-                        </option>
-                    </select>
-                </div>
-            </div>
         </div>
+        <!-- END prayer times grid -->
 
-        <!-- ============================================
-             SPECIAL MODES — Ramadan & Islamic Holidays
-             As their own clean row of feature cards
-             ============================================ -->
-        <div class="section-divider"></div>
-        <div class="section-header">
-            <span class="section-header-icon"></span>
-            <span data-i18n="specialModes">Special Modes</span>
-        </div>
-        <div class="grid grid-2" style="margin-bottom: var(--space-xl);">
+        <!-- ════════════════════════════════════════════════════════
+             CONFIGURATION TABS
+             ════════════════════════════════════════════════════════ -->
+        <div class="cfg-tabs-wrapper">
 
-            <!-- Ramadan Mode card -->
-            <div class="config-card special-mode-card" id="ramadanModeCard">
-                <div style="display:flex; align-items:center; gap: var(--space-l);">
-                    <div style="font-size:2.8rem; line-height:1; flex-shrink:0;"></div>
-                    <div style="flex:1;">
-                        <div style="font-family: var(--font-display); font-size:1.15rem; font-weight:700; color: var(--text-primary); margin-bottom: 4px;" data-i18n="ramadanMode">Ramadan Mode</div>
-                        <div style="font-size:0.85rem; color: var(--text-secondary);" data-i18n="ramadanModeHint">Use special audio configuration during Ramadan</div>
-                    </div>
-                    <label class="toggle-switch" style="flex-shrink:0;">
-                        <input type="checkbox" id="ramadanMode" th:checked="${config.audioConfig.ramadanMode}" onchange="toggleRamadanUI()">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
+            <!-- ── Tab Bar ── -->
+            <div class="cfg-tab-bar" id="cfgTabBar">
+                <button class="cfg-tab-btn active" data-tab="tab-location" onclick="switchTab('tab-location',this)">
+                    📍 <span data-i18n="tabLocation">Location &amp; Audio</span>
+                </button>
+                <button class="cfg-tab-btn" data-tab="tab-special" onclick="switchTab('tab-special',this)">
+                    🌙 <span data-i18n="tabSpecial">Special Modes</span>
+                </button>
+                <button class="cfg-tab-btn" data-tab="tab-prayer-audio" onclick="switchTab('tab-prayer-audio',this)">
+                    🎵 <span data-i18n="tabPrayerAudio">Prayer Audio</span>
+                </button>
+                <button class="cfg-tab-btn" data-tab="tab-ramadan" id="tabBtnRamadan" onclick="switchTab('tab-ramadan',this)" style="display:none;">
+                    🌙 <span data-i18n="tabRamadan">Ramadan Audio</span>
+                </button>
+                <button class="cfg-tab-btn" data-tab="tab-takbeer" id="tabBtnTakbeer" onclick="switchTab('tab-takbeer',this)" style="display:none;">
+                    🎊 <span data-i18n="tabTakbeer">Takbeer</span>
+                </button>
+                <button class="cfg-tab-btn" data-tab="tab-audio-files" onclick="switchTab('tab-audio-files',this)">
+                    📁 <span data-i18n="tabAudioFiles">Audio Files</span>
+                </button>
+                <button class="cfg-tab-btn" data-tab="tab-theme" onclick="switchTab('tab-theme',this)">
+                    🎨 <span data-i18n="tabTheme">Theme</span>
+                </button>
+                <button class="cfg-tab-btn" data-tab="tab-logs" onclick="switchTab('tab-logs',this)">
+                    📋 <span data-i18n="tabLogs">Logs</span>
+                </button>
             </div>
 
-            <!-- Islamic Holidays card -->
-            <div class="config-card special-mode-card" id="islamicHolidaysModeCard">
-                <div style="display:flex; align-items:center; gap: var(--space-l);">
-                    <div style="font-size:2.8rem; line-height:1; flex-shrink:0;">🎊</div>
-                    <div style="flex:1;">
-                        <div style="font-family: var(--font-display); font-size:1.15rem; font-weight:700; color: var(--text-primary); margin-bottom: 4px;" data-i18n="enableIslamicHolidays">Islamic Holidays</div>
-                        <div style="font-size:0.85rem; color: var(--text-secondary);" data-i18n="islamicHolidaysHint">Play Takbeer audio on Islamic holidays</div>
-                    </div>
-                    <label class="toggle-switch" style="flex-shrink:0;">
-                        <input type="checkbox" id="islamicHolidaysToggle" th:checked="${config.audioConfig.islamicHolidaysEnabled}" onchange="toggleIslamicHolidaysUI()">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
+            <!-- ── Tab Panels ── -->
+            <div class="cfg-tab-panels">
 
-        </div>
-
-        <!-- ============================================
-             AUDIO FILE MANAGEMENT - Full Width
-             ============================================ -->
-        <div class="section-divider"></div>
-
-        <div class="section-header">
-            <span class="section-header-icon"></span>
-            <span data-i18n="manageAudioFiles">Audio File Management</span>
-        </div>
-
-        <div class="config-card" style="padding: 0; overflow: hidden;">
-            <div class="audio-manager-grid">
-
-                <!-- LEFT: Upload -->
-                <div class="audio-manager-upload">
-                    <input type="file" id="audioFileInput" class="upload-input" accept=".mp3,.wav" onchange="handleFileSelect(event)">
-                    <label for="audioFileInput" class="upload-label-clean">
-                        <div class="upload-icon-clean">☁️⬆️</div>
-                        <div class="upload-title-clean" data-i18n="uploadAudioFile">Upload Audio File</div>
-                        <div class="upload-subtitle-clean" data-i18n="supportsFormats">Supports MP3 and WAV • Click or drag</div>
-                    </label>
-                </div>
-
-                <!-- RIGHT: File list -->
-                <div class="audio-manager-list">
-                    <div class="audio-manager-list-header">
-                        <span data-i18n="availableFiles">Available Audio Files</span>
-                        <button class="btn btn-secondary btn-sm" onclick="refreshFileList()">
-                            <span data-i18n="refresh">🔄 Refresh</span>
-                        </button>
-                    </div>
-                    <div id="availableFilesList" class="audio-files-grid"></div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- ============================================
-             THEME SETTINGS CARD
-             ============================================ -->
-        <div class="section-divider"></div>
-
-        <div class="section-header">
-            <span class="section-header-icon"></span>
-            <span data-i18n="themeSettings">Theme Settings</span>
-        </div>
-
-        <div class="config-card">
-            <!-- Auto / Manual toggle row -->
-            <div class="toggle-group-clean" style="margin-bottom: var(--space-l);">
-                <label class="toggle-label-clean">
-                    <span style="font-size: 1.3em;">🔄</span>
-                    <div>
-                        <div style="font-weight: 600;" data-i18n="themeAutomatic">Automatic Theme</div>
-                        <div style="font-size: 0.85rem; color: var(--text-secondary);" data-i18n="themeAutomaticHint">Switches to Ramadan / Eid automatically based on date</div>
-                    </div>
-                </label>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="themeAutoToggle" onchange="onThemeAutoToggle(this.checked)">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-
-            <!-- Manual theme picker — shown when auto is OFF -->
-            <div id="themeManualPicker" style="display: none;">
-                <label class="form-label-clean" data-i18n="themeChoose">Choose Theme</label>
-                <div class="grid grid-3" style="margin-top: var(--space-m); gap: var(--space-m);">
-
-                    <!-- Everyday -->
-                    <div class="theme-option-card" data-theme="everyday" onclick="selectTheme('everyday')"
-                         style="cursor: pointer; border-radius: var(--radius-xl); border: 2px solid var(--border); padding: var(--space-l); text-align: center; transition: all var(--transition-base); background: var(--card);">
-                        <div style="font-size: 2.5rem; margin-bottom: var(--space-s);">🌍</div>
-                        <div style="font-weight: 700; color: var(--text-primary); font-family: var(--font-display); font-size: 1.05rem;" data-i18n="themeEveryday">Everyday</div>
-                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: var(--space-xs);" data-i18n="themeEverydayDesc">Clean minimal look</div>
-                    </div>
-
-                    <!-- Ramadan -->
-                    <div class="theme-option-card" data-theme="ramadan" onclick="selectTheme('ramadan')"
-                         style="cursor: pointer; border-radius: var(--radius-xl); border: 2px solid var(--border); padding: var(--space-l); text-align: center; transition: all var(--transition-base); background: var(--card);">
-                        <div style="font-size: 2.5rem; margin-bottom: var(--space-s);"></div>
-                        <div style="font-weight: 700; color: var(--text-primary); font-family: var(--font-display); font-size: 1.05rem;" data-i18n="themeRamadan">Ramadan</div>
-                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: var(--space-xs);" data-i18n="themeRamadanDesc">Warm golden tones</div>
-                    </div>
-
-                    <!-- Eid -->
-                    <div class="theme-option-card" data-theme="eid" onclick="selectTheme('eid')"
-                         style="cursor: pointer; border-radius: var(--radius-xl); border: 2px solid var(--border); padding: var(--space-l); text-align: center; transition: all var(--transition-base); background: var(--card);">
-                        <div style="font-size: 2.5rem; margin-bottom: var(--space-s);">🎊</div>
-                        <div style="font-weight: 700; color: var(--text-primary); font-family: var(--font-display); font-size: 1.05rem;" data-i18n="themeEid">Eid</div>
-                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: var(--space-xs);" data-i18n="themeEidDesc">Festive celebration</div>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- Current theme status -->
-            <div style="margin-top: var(--space-l); padding: var(--space-m) var(--space-l); background: var(--bg-medium); border-radius: var(--radius-l); display: flex; align-items: center; gap: var(--space-m);">
-                <span id="currentThemeIcon" style="font-size: 1.5rem;">🌍</span>
-                <div>
-                    <div style="font-size: 0.85rem; color: var(--text-secondary);" data-i18n="themeActive">Active Theme</div>
-                    <div id="currentThemeLabel" style="font-weight: 600; color: var(--primary); font-family: var(--font-display);">Everyday</div>
-                </div>
-                <div id="themeAutoLabel" style="margin-left: auto; font-size: 0.8rem; color: var(--text-secondary); background: var(--border); padding: 3px 10px; border-radius: 20px;" data-i18n="themeAutoLabel">Auto</div>
-            </div>
-        </div>
-
-        <!-- ============================================
-             PRAYER AUDIO CONFIGURATION - Collapsible
-             ============================================ -->
-        <div class="section-divider"></div>
-
-        <div class="section-header">
-            <span class="section-header-icon">🎵</span>
-            <span data-i18n="prayerAudioConfig">Prayer Audio Configuration</span>
-        </div>
-
-        <div class="grid grid-3" style="margin-bottom: var(--space-2xl);">
-            <!-- Fajr -->
-            <div class="collapsible-section">
-                <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                    <div class="collapsible-title">
-                        <span class="collapsible-icon">🌅</span>
-                        <span data-i18n="FAJR">Fajr</span>
-                    </div>
-                    <span class="collapsible-arrow">▼</span>
-                </div>
-                <div class="collapsible-body">
-                    <div id="fileList-FAJR" class="file-list" data-prayer="FAJR"></div>
-                    <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                        <button class="btn btn-secondary btn-sm" onclick="addFile('FAJR')"><span data-i18n="addBtn">➕ Add</span></button>
-                        <button id="testBtn-FAJR" class="btn btn-secondary btn-sm" onclick="testAudio('FAJR')"><span data-i18n="test">▶️ Test</span></button>
-                        <button id="stopBtn-FAJR" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dhuhr -->
-            <div class="collapsible-section">
-                <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                    <div class="collapsible-title">
-                        <span class="collapsible-icon">☀️</span>
-                        <span data-i18n="DHUHR">Dhuhr</span>
-                    </div>
-                    <span class="collapsible-arrow">▼</span>
-                </div>
-                <div class="collapsible-body">
-                    <div id="fileList-DHUHR" class="file-list" data-prayer="DHUHR"></div>
-                    <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                        <button class="btn btn-secondary btn-sm" onclick="addFile('DHUHR')"><span data-i18n="addBtn">➕ Add</span></button>
-                        <button id="testBtn-DHUHR" class="btn btn-secondary btn-sm" onclick="testAudio('DHUHR')"><span data-i18n="test">▶️ Test</span></button>
-                        <button id="stopBtn-DHUHR" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Asr -->
-            <div class="collapsible-section">
-                <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                    <div class="collapsible-title">
-                        <span class="collapsible-icon">🌤️</span>
-                        <span data-i18n="ASR">Asr</span>
-                    </div>
-                    <span class="collapsible-arrow">▼</span>
-                </div>
-                <div class="collapsible-body">
-                    <div id="fileList-ASR" class="file-list" data-prayer="ASR"></div>
-                    <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                        <button class="btn btn-secondary btn-sm" onclick="addFile('ASR')"><span data-i18n="addBtn">➕ Add</span></button>
-                        <button id="testBtn-ASR" class="btn btn-secondary btn-sm" onclick="testAudio('ASR')"><span data-i18n="test">▶️ Test</span></button>
-                        <button id="stopBtn-ASR" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Maghrib -->
-            <div class="collapsible-section">
-                <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                    <div class="collapsible-title">
-                        <span class="collapsible-icon">🌅</span>
-                        <span data-i18n="MAGHRIB">Maghrib</span>
-                    </div>
-                    <span class="collapsible-arrow">▼</span>
-                </div>
-                <div class="collapsible-body">
-                    <div id="fileList-MAGHRIB" class="file-list" data-prayer="MAGHRIB"></div>
-                    <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                        <button class="btn btn-secondary btn-sm" onclick="addFile('MAGHRIB')"><span data-i18n="addBtn">➕ Add</span></button>
-                        <button id="testBtn-MAGHRIB" class="btn btn-secondary btn-sm" onclick="testAudio('MAGHRIB')"><span data-i18n="test">▶️ Test</span></button>
-                        <button id="stopBtn-MAGHRIB" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Isha -->
-            <div class="collapsible-section">
-                <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                    <div class="collapsible-title">
-                        <span class="collapsible-icon">🌙</span>
-                        <span data-i18n="ISHA">Isha</span>
-                    </div>
-                    <span class="collapsible-arrow">▼</span>
-                </div>
-                <div class="collapsible-body">
-                    <div id="fileList-ISHA" class="file-list" data-prayer="ISHA"></div>
-                    <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                        <button class="btn btn-secondary btn-sm" onclick="addFile('ISHA')"><span data-i18n="addBtn">➕ Add</span></button>
-                        <button id="testBtn-ISHA" class="btn btn-secondary btn-sm" onclick="testAudio('ISHA')"><span data-i18n="test">▶️ Test</span></button>
-                        <button id="stopBtn-ISHA" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tasbee7 1 -->
-            <div class="collapsible-section">
-                <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                    <div class="collapsible-title">
-                        <span class="collapsible-icon">✨</span>
-                        <span data-i18n="TASBEE7_1">Tasbee7 1</span>
-                    </div>
-                    <span class="collapsible-arrow">▼</span>
-                </div>
-                <div class="collapsible-body">
-                    <div id="fileList-TASBEE7_1" class="file-list" data-prayer="TASBEE7_1"></div>
-                    <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                        <button class="btn btn-secondary btn-sm" onclick="addFile('TASBEE7_1')"><span data-i18n="addBtn">➕ Add</span></button>
-                        <button id="testBtn-TASBEE7_1" class="btn btn-secondary btn-sm" onclick="testAudio('TASBEE7_1')"><span data-i18n="test">▶️ Test</span></button>
-                        <button id="stopBtn-TASBEE7_1" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tasbee7 2 -->
-            <div class="collapsible-section">
-                <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                    <div class="collapsible-title">
-                        <span class="collapsible-icon">✨</span>
-                        <span data-i18n="TASBEE7_2">Tasbee7 2</span>
-                    </div>
-                    <span class="collapsible-arrow">▼</span>
-                </div>
-                <div class="collapsible-body">
-                    <div id="fileList-TASBEE7_2" class="file-list" data-prayer="TASBEE7_2"></div>
-                    <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                        <button class="btn btn-secondary btn-sm" onclick="addFile('TASBEE7_2')"><span data-i18n="addBtn">➕ Add</span></button>
-                        <button id="testBtn-TASBEE7_2" class="btn btn-secondary btn-sm" onclick="testAudio('TASBEE7_2')"><span data-i18n="test">▶️ Test</span></button>
-                        <button id="stopBtn-TASBEE7_2" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tasbee7 3 -->
-            <div class="collapsible-section">
-                <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                    <div class="collapsible-title">
-                        <span class="collapsible-icon">✨</span>
-                        <span data-i18n="TASBEE7_3">Tasbee7 3</span>
-                    </div>
-                    <span class="collapsible-arrow">▼</span>
-                </div>
-                <div class="collapsible-body">
-                    <div id="fileList-TASBEE7_3" class="file-list" data-prayer="TASBEE7_3"></div>
-                    <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                        <button class="btn btn-secondary btn-sm" onclick="addFile('TASBEE7_3')"><span data-i18n="addBtn">➕ Add</span></button>
-                        <button id="testBtn-TASBEE7_3" class="btn btn-secondary btn-sm" onclick="testAudio('TASBEE7_3')"><span data-i18n="test">▶️ Test</span></button>
-                        <button id="stopBtn-TASBEE7_3" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ============================================
-             RAMADAN AUDIO CONFIGURATION - Collapsible (Hidden by default)
-             ============================================ -->
-        <div id="ramadanAudioCard" style="display: none;">
-            <div class="section-divider"></div>
-
-            <div class="section-header">
-                <span class="section-header-icon">🌙</span>
-                <span data-i18n="ramadanAudioTitle">Ramadan Audio Configuration</span>
-            </div>
-            <p style="text-align: center; color: var(--text-secondary); margin-bottom: var(--space-l); font-size: 0.95rem;" data-i18n="ramadanAudioSubtitle">Special audio files to play during the blessed month of Ramadan</p>
-
-            <div class="grid grid-3" style="margin-bottom: var(--space-2xl);">
-                <!-- Ramadan Fajr -->
-                <div class="collapsible-section">
-                    <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                        <div class="collapsible-title">
-                            <span class="collapsible-icon">🌅</span>
-                            <span data-i18n="FAJR">Fajr</span>
+                <!-- ══ TAB 1: Location & Audio ══ -->
+                <div class="cfg-tab-panel active" id="tab-location">
+                    <div class="grid grid-2">
+                        <!-- LEFT: Location -->
+                        <div class="config-card">
+                            <div class="section-header" style="margin-top:0;">
+                                <span class="section-header-icon">📍</span>
+                                <span data-i18n="locationTitle">Location Settings</span>
+                            </div>
+                            <div class="form-group-clean">
+                                <label class="form-label-clean" data-i18n="city">City</label>
+                                <input type="text" class="form-input-clean" id="city" th:value="${config.city}" placeholder="Enter city name">
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-m);">
+                                <div class="form-group-clean">
+                                    <label class="form-label-clean" data-i18n="latitude">Latitude</label>
+                                    <input type="number" step="0.0001" class="form-input-clean" id="latitude" th:value="${config.latitude}" placeholder="21.4225">
+                                </div>
+                                <div class="form-group-clean">
+                                    <label class="form-label-clean" data-i18n="longitude">Longitude</label>
+                                    <input type="number" step="0.0001" class="form-input-clean" id="longitude" th:value="${config.longitude}" placeholder="39.8262">
+                                </div>
+                            </div>
+                            <div class="form-group-clean">
+                                <label class="form-label-clean" data-i18n="timezone">Timezone</label>
+                                <select id="timezone" class="form-input-clean">
+                                    <option th:each="tz : ${timezones}" th:value="${tz}" th:text="${tz}" th:selected="${tz == config.timezone}"></option>
+                                </select>
+                            </div>
+                            <div class="form-group-clean">
+                                <label class="form-label-clean" data-i18n="calculationMethod">Calculation Method</label>
+                                <select id="calculationMethod" class="form-input-clean">
+                                    <option th:each="method : ${calculationMethods}" th:value="${method}" th:text="${method}" th:selected="${method == config.calculationMethod}"></option>
+                                </select>
+                                <span class="form-hint-clean" data-i18n="calculationMethodHint">Islamic calculation method for your region</span>
+                            </div>
+                            <div style="margin-top:var(--space-l);padding-top:var(--space-l);border-top:1px solid var(--border);">
+                                <label class="form-label-clean" data-i18n="prayerOffsets">⏱ Prayer Time Offsets</label>
+                                <span class="form-hint-clean" style="display:block;margin-bottom:var(--space-m);" data-i18n="prayerOffsetsHint">Adjust Fajr and Maghrib times by ± minutes</span>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-m);">
+                                    <div class="form-group-clean" style="margin-bottom:0;">
+                                        <label class="form-label-clean" data-i18n="fajrOffset">Fajr Offset (min)</label>
+                                        <input type="number" class="form-input-clean offset-input" id="fajrOffsetMinutes" th:value="${config.fajrOffsetMinutes}" min="-120" max="120" step="1" placeholder="0" oninput="updateOffsetPreview('fajr',this.value)">
+                                        <span class="form-hint-clean offset-preview" id="fajrOffsetPreview"></span>
+                                    </div>
+                                    <div class="form-group-clean" style="margin-bottom:0;">
+                                        <label class="form-label-clean" data-i18n="maghribOffset">Maghrib Offset (min)</label>
+                                        <input type="number" class="form-input-clean offset-input" id="maghribOffsetMinutes" th:value="${config.maghribOffsetMinutes}" min="-120" max="120" step="1" placeholder="0" oninput="updateOffsetPreview('maghrib',this.value)">
+                                        <span class="form-hint-clean offset-preview" id="maghribOffsetPreview"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-top:var(--space-xl);padding-top:var(--space-l);border-top:1px solid var(--border);">
+                                <label class="form-label-clean" data-i18n="popularCities">Quick Select City</label>
+                                <div class="city-grid-clean">
+                                    <button class="city-btn-clean" onclick="setCity('Mecca',21.4225,39.8262,'Asia/Riyadh')">🕋 Mecca</button>
+                                    <button class="city-btn-clean" onclick="setCity('Medina',24.5247,39.5692,'Asia/Riyadh')">🕌 Medina</button>
+                                    <button class="city-btn-clean" onclick="setCity('Dubai',25.2048,55.2708,'Asia/Dubai')">Dubai</button>
+                                    <button class="city-btn-clean" onclick="setCity('Cairo',30.0444,31.2357,'Africa/Cairo')">Cairo</button>
+                                    <button class="city-btn-clean" onclick="setCity('Istanbul',41.0082,28.9784,'Europe/Istanbul')">Istanbul</button>
+                                    <button class="city-btn-clean" onclick="setCity('London',51.5074,-0.1278,'Europe/London')">London</button>
+                                </div>
+                            </div>
                         </div>
-                        <span class="collapsible-arrow">▼</span>
-                    </div>
-                    <div class="collapsible-body">
-                        <div id="fileList-RAMADAN-FAJR" class="file-list" data-prayer="RAMADAN-FAJR"></div>
-                        <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                            <button class="btn btn-secondary btn-sm" onclick="addRamadanFile('FAJR')"><span data-i18n="addBtn">➕ Add</span></button>
-                            <button id="testBtn-RAMADAN-FAJR" class="btn btn-secondary btn-sm" onclick="testRamadanAudio('FAJR')"><span data-i18n="test">▶️ Test</span></button>
-                            <button id="stopBtn-RAMADAN-FAJR" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display: none;"><span data-i18n="stop">⏹️ Stop</span></button>
+                        <!-- RIGHT: Audio -->
+                        <div class="config-card">
+                            <div class="section-header" style="margin-top:0;">
+                                <span class="section-header-icon">🔊</span>
+                                <span data-i18n="audioTitle">Audio Settings</span>
+                            </div>
+                            <div class="toggle-group-clean">
+                                <label class="toggle-label-clean"><span data-i18n="enableAthan">Enable Athan</span></label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="audioEnabled" th:checked="${config.audioConfig.enabled}">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group-clean">
+                                <label class="form-label-clean" data-i18n="volume">Volume</label>
+                                <div class="volume-control">
+                                    <input type="range" id="volume" min="0" max="100" th:value="${config.audioConfig.volume}" style="flex:1;">
+                                    <span id="volumeValue" th:text="${config.audioConfig.volume}+'%'" style="min-width:50px;text-align:right;font-weight:600;color:var(--primary);">80%</span>
+                                </div>
+                            </div>
+                            <div class="form-group-clean">
+                                <label class="form-label-clean" data-i18n="audioOutputDevice">Audio Output</label>
+                                <select id="outputDevice" class="form-input-clean">
+                                    <option value="default" th:selected="${config.audioConfig.outputDevice == null || config.audioConfig.outputDevice == 'default'}">🔊 System Default</option>
+                                    <option th:each="device : ${audioDevices}" th:value="${device.id}" th:text="${device.name}" th:selected="${device.id == config.audioConfig.outputDevice}"></option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
+                    <div class="tab-save-row">
+                        <button class="btn btn-primary" onclick="saveConfig()">💾 <span data-i18n="saveConfig">Save Configuration</span></button>
+                    </div>
+                </div><!-- end #tab-location -->
 
-                <!-- Ramadan Dhuhr -->
-                <div class="collapsible-section">
-                    <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                        <div class="collapsible-title">
-                            <span class="collapsible-icon">☀️</span>
-                            <span data-i18n="DHUHR">Dhuhr</span>
-                        </div>
-                        <span class="collapsible-arrow">▼</span>
-                    </div>
-                    <div class="collapsible-body">
-                        <div id="fileList-RAMADAN-DHUHR" class="file-list" data-prayer="RAMADAN-DHUHR"></div>
-                        <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                            <button class="btn btn-secondary btn-sm" onclick="addRamadanFile('DHUHR')"><span data-i18n="addBtn">➕ Add</span></button>
-                            <button id="testBtn-RAMADAN-DHUHR" class="btn btn-secondary btn-sm" onclick="testRamadanAudio('DHUHR')"><span data-i18n="test">▶️ Test</span></button>
-                            <button id="stopBtn-RAMADAN-DHUHR" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display: none;"><span data-i18n="stop">⏹️ Stop</span></button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Ramadan Asr -->
-                <div class="collapsible-section">
-                    <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                        <div class="collapsible-title">
-                            <span class="collapsible-icon">🌤️</span>
-                            <span data-i18n="ASR">Asr</span>
-                        </div>
-                        <span class="collapsible-arrow">▼</span>
-                    </div>
-                    <div class="collapsible-body">
-                        <div id="fileList-RAMADAN-ASR" class="file-list" data-prayer="RAMADAN-ASR"></div>
-                        <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                            <button class="btn btn-secondary btn-sm" onclick="addRamadanFile('ASR')"><span data-i18n="addBtn">➕ Add</span></button>
-                            <button id="testBtn-RAMADAN-ASR" class="btn btn-secondary btn-sm" onclick="testRamadanAudio('ASR')"><span data-i18n="test">▶️ Test</span></button>
-                            <button id="stopBtn-RAMADAN-ASR" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display: none;"><span data-i18n="stop">⏹️ Stop</span></button>
+                <!-- ══ TAB 2: Special Modes ══ -->
+                <div class="cfg-tab-panel" id="tab-special">
+                    <!-- Info card -->
+                    <div class="config-card" style="margin-bottom:var(--space-l);background:linear-gradient(135deg,var(--gradient-start,var(--primary)) 0%,var(--gradient-end,var(--primary-dark,var(--primary))) 100%);color:white;border:none;">
+                        <div style="display:flex;align-items:center;gap:var(--space-xl);flex-wrap:wrap;">
+                            <div style="font-size:3rem;line-height:1;flex-shrink:0;"></div>
+                            <div style="flex:1;min-width:200px;">
+                                <div style="font-size:1.2rem;font-weight:800;margin-bottom:6px;color:white;" data-i18n="specialModes">Special Modes</div>
+                                <div style="font-size:0.88rem;color:rgba(255,255,255,0.85);line-height:1.6;" data-i18n="specialModesDesc">Enable Ramadan or Islamic Holiday modes to automatically switch to custom audio configurations on special occasions.</div>
+                            </div>
+                            <div style="display:flex;flex-direction:column;gap:10px;flex-shrink:0;">
+                                <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.15);border-radius:12px;padding:10px 16px;min-width:180px;">
+                                    <span style="font-size:1.4rem;"></span>
+                                    <div>
+                                        <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.7);" data-i18n="ramadanMode">Ramadan Mode</div>
+                                        <div id="specialModeRamadanStatus" style="font-size:0.9rem;font-weight:700;color:white;">—</div>
+                                    </div>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.15);border-radius:12px;padding:10px 16px;min-width:180px;">
+                                    <span style="font-size:1.4rem;">🎊</span>
+                                    <div>
+                                        <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.7);" data-i18n="enableIslamicHolidays">Islamic Holidays</div>
+                                        <div id="specialModeHolidaysStatus" style="font-size:0.9rem;font-weight:700;color:white;">—</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Ramadan Maghrib -->
-                <div class="collapsible-section">
-                    <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                        <div class="collapsible-title">
-                            <span class="collapsible-icon">🌅</span>
-                            <span data-i18n="MAGHRIB">Maghrib</span>
+                    <!-- Toggle cards -->
+                    <div class="grid grid-2" style="margin-bottom:var(--space-xl);">
+                        <div class="config-card special-mode-card" id="ramadanModeCard">
+                            <div style="display:flex;align-items:center;gap:var(--space-l);">
+                                <div style="font-size:2.8rem;line-height:1;flex-shrink:0;"></div>
+                                <div style="flex:1;">
+                                    <div style="font-size:1.15rem;font-weight:700;color:var(--text-primary);margin-bottom:4px;" data-i18n="ramadanMode">Ramadan Mode</div>
+                                    <div style="font-size:0.85rem;color:var(--text-secondary);" data-i18n="ramadanModeHint">Use special audio configuration during Ramadan</div>
+                                </div>
+                                <label class="toggle-switch" style="flex-shrink:0;">
+                                    <input type="checkbox" id="ramadanMode" th:checked="${config.audioConfig.ramadanMode}" onchange="toggleRamadanUI()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
                         </div>
-                        <span class="collapsible-arrow">▼</span>
-                    </div>
-                    <div class="collapsible-body">
-                        <div id="fileList-RAMADAN-MAGHRIB" class="file-list" data-prayer="RAMADAN-MAGHRIB"></div>
-                        <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                            <button class="btn btn-secondary btn-sm" onclick="addRamadanFile('MAGHRIB')"><span data-i18n="addBtn">➕ Add</span></button>
-                            <button id="testBtn-RAMADAN-MAGHRIB" class="btn btn-secondary btn-sm" onclick="testRamadanAudio('MAGHRIB')"><span data-i18n="test">▶️ Test</span></button>
-                            <button id="stopBtn-RAMADAN-MAGHRIB" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display: none;"><span data-i18n="stop">⏹️ Stop</span></button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Ramadan Isha -->
-                <div class="collapsible-section">
-                    <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                        <div class="collapsible-title">
-                            <span class="collapsible-icon">🌙</span>
-                            <span data-i18n="ISHA">Isha</span>
-                        </div>
-                        <span class="collapsible-arrow">▼</span>
-                    </div>
-                    <div class="collapsible-body">
-                        <div id="fileList-RAMADAN-ISHA" class="file-list" data-prayer="RAMADAN-ISHA"></div>
-                        <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                            <button class="btn btn-secondary btn-sm" onclick="addRamadanFile('ISHA')"><span data-i18n="addBtn">➕ Add</span></button>
-                            <button id="testBtn-RAMADAN-ISHA" class="btn btn-secondary btn-sm" onclick="testRamadanAudio('ISHA')"><span data-i18n="test">▶️ Test</span></button>
-                            <button id="stopBtn-RAMADAN-ISHA" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display: none;"><span data-i18n="stop">⏹️ Stop</span></button>
+                        <div class="config-card special-mode-card" id="islamicHolidaysModeCard">
+                            <div style="display:flex;align-items:center;gap:var(--space-l);">
+                                <div style="font-size:2.8rem;line-height:1;flex-shrink:0;">🎊</div>
+                                <div style="flex:1;">
+                                    <div style="font-size:1.15rem;font-weight:700;color:var(--text-primary);margin-bottom:4px;" data-i18n="enableIslamicHolidays">Islamic Holidays</div>
+                                    <div style="font-size:0.85rem;color:var(--text-secondary);" data-i18n="islamicHolidaysHint">Play Takbeer audio on Islamic holidays</div>
+                                </div>
+                                <label class="toggle-switch" style="flex-shrink:0;">
+                                    <input type="checkbox" id="islamicHolidaysToggle" th:checked="${config.audioConfig.islamicHolidaysEnabled}" onchange="toggleIslamicHolidaysUI()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
                         </div>
                     </div>
-                </div>
+                    <div class="tab-save-row">
+                        <button class="btn btn-primary" onclick="saveConfig()">💾 <span data-i18n="saveConfig">Save Configuration</span></button>
+                    </div>
+                </div><!-- end #tab-special -->
 
-                <!-- Ramadan Tasbee7 1 -->
-                <div class="collapsible-section">
-                    <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                        <div class="collapsible-title">
-                            <span class="collapsible-icon">✨</span>
-                            <span data-i18n="TASBEE7_1">Tasbee7 1</span>
-                        </div>
-                        <span class="collapsible-arrow">▼</span>
-                    </div>
-                    <div class="collapsible-body">
-                        <div id="fileList-RAMADAN-TASBEE7_1" class="file-list" data-prayer="RAMADAN-TASBEE7_1"></div>
-                        <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                            <button class="btn btn-secondary btn-sm" onclick="addRamadanFile('TASBEE7_1')"><span data-i18n="addBtn">➕ Add</span></button>
-                            <button id="testBtn-RAMADAN-TASBEE7_1" class="btn btn-secondary btn-sm" onclick="testRamadanAudio('TASBEE7_1')"><span data-i18n="test">▶️ Test</span></button>
-                            <button id="stopBtn-RAMADAN-TASBEE7_1" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display: none;"><span data-i18n="stop">⏹️ Stop</span></button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Ramadan Tasbee7 2 -->
-                <div class="collapsible-section">
-                    <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                        <div class="collapsible-title">
-                            <span class="collapsible-icon">✨</span>
-                            <span data-i18n="TASBEE7_2">Tasbee7 2</span>
-                        </div>
-                        <span class="collapsible-arrow">▼</span>
-                    </div>
-                    <div class="collapsible-body">
-                        <div id="fileList-RAMADAN-TASBEE7_2" class="file-list" data-prayer="RAMADAN-TASBEE7_2"></div>
-                        <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                            <button class="btn btn-secondary btn-sm" onclick="addRamadanFile('TASBEE7_2')"><span data-i18n="addBtn">➕ Add</span></button>
-                            <button id="testBtn-RAMADAN-TASBEE7_2" class="btn btn-secondary btn-sm" onclick="testRamadanAudio('TASBEE7_2')"><span data-i18n="test">▶️ Test</span></button>
-                            <button id="stopBtn-RAMADAN-TASBEE7_2" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display: none;"><span data-i18n="stop">⏹️ Stop</span></button>
+                <!-- ══ TAB 3: Prayer Audio ══ -->
+                <div class="cfg-tab-panel" id="tab-prayer-audio">
+                    <!-- Info card -->
+                    <div class="config-card" style="margin-bottom:var(--space-l);">
+                        <div style="display:flex;align-items:center;gap:var(--space-xl);flex-wrap:wrap;">
+                            <div style="font-size:2.8rem;line-height:1;flex-shrink:0;">🎵</div>
+                            <div style="flex:1;min-width:200px;">
+                                <div style="font-size:1.1rem;font-weight:800;color:var(--text-primary);margin-bottom:6px;" data-i18n="prayerAudioConfig">Prayer Audio Configuration</div>
+                                <div style="font-size:0.88rem;color:var(--text-secondary);line-height:1.6;" data-i18n="prayerAudioConfigDesc">Assign one or more audio files to each prayer. Files play in sequence when the prayer time arrives.</div>
+                            </div>
+                            <div style="display:flex;flex-wrap:wrap;gap:8px;flex-shrink:0;max-width:320px;">
+                                <div th:each="prayer : ${config.audioConfig.prayerAudioFiles}" th:if="${prayer.key != 'SUNRISE'}" style="display:flex;align-items:center;gap:6px;background:var(--bg-medium);border:1.5px solid var(--border);border-radius:10px;padding:6px 12px;">
+                                    <span style="font-size:0.8rem;font-weight:700;color:var(--primary);" th:text="${prayer.key}"></span>
+                                    <span style="font-size:0.75rem;color:var(--text-secondary);"><th:block th:text="${#lists.size(prayer.value)}"></th:block> <span data-i18n="files">files</span></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Ramadan Tasbee7 3 -->
-                <div class="collapsible-section">
-                    <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                        <div class="collapsible-title">
-                            <span class="collapsible-icon">✨</span>
-                            <span data-i18n="TASBEE7_3">Tasbee7 3</span>
+                    <div class="grid grid-3" style="margin-bottom:var(--space-2xl);">
+                        <div class="collapsible-section">
+                            <div class="collapsible-header" onclick="toggleCollapsible(this)"><div class="collapsible-title"><span class="collapsible-icon">🌅</span><span data-i18n="FAJR">Fajr</span></div><span class="collapsible-arrow">▼</span></div>
+                            <div class="collapsible-body"><div id="fileList-FAJR" class="file-list" data-prayer="FAJR"></div><div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addFile('FAJR')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-FAJR" class="btn btn-secondary btn-sm" onclick="testAudio('FAJR')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-FAJR" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div></div>
                         </div>
-                        <span class="collapsible-arrow">▼</span>
-                    </div>
-                    <div class="collapsible-body">
-                        <div id="fileList-RAMADAN-TASBEE7_3" class="file-list" data-prayer="RAMADAN-TASBEE7_3"></div>
-                        <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                            <button class="btn btn-secondary btn-sm" onclick="addRamadanFile('TASBEE7_3')"><span data-i18n="addBtn">➕ Add</span></button>
-                            <button id="testBtn-RAMADAN-TASBEE7_3" class="btn btn-secondary btn-sm" onclick="testRamadanAudio('TASBEE7_3')"><span data-i18n="test">▶️ Test</span></button>
-                            <button id="stopBtn-RAMADAN-TASBEE7_3" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display: none;"><span data-i18n="stop">⏹️ Stop</span></button>
+                        <div class="collapsible-section">
+                            <div class="collapsible-header" onclick="toggleCollapsible(this)"><div class="collapsible-title"><span class="collapsible-icon">☀️</span><span data-i18n="DHUHR">Dhuhr</span></div><span class="collapsible-arrow">▼</span></div>
+                            <div class="collapsible-body"><div id="fileList-DHUHR" class="file-list" data-prayer="DHUHR"></div><div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addFile('DHUHR')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-DHUHR" class="btn btn-secondary btn-sm" onclick="testAudio('DHUHR')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-DHUHR" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div></div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ============================================
-             ISLAMIC HOLIDAYS / TAKBEER CONFIGURATION - Collapsible (Hidden by default)
-             ============================================ -->
-        <div id="islamicHolidaysCard" style="display: none;">
-            <div class="section-divider"></div>
-
-            <div class="section-header">
-                <span class="section-header-icon">🎊</span>
-                <span data-i18n="takbeerTimesTitle">Takbeer Times Configuration</span>
-            </div>
-            <p style="text-align: center; color: var(--text-secondary); margin-bottom: var(--space-l); font-size: 0.95rem;" data-i18n="takbeerTimesSubtitle">Configure when Takbeer should be played during Islamic holidays</p>
-
-            <div class="grid grid-2" style="margin-bottom: var(--space-2xl);">
-                <!-- Eid al-Fitr -->
-                <div class="config-card">
-                    <div class="section-header" style="margin-top: 0;">
-                        <span class="section-header-icon">🌙</span>
-                        <span data-i18n="eidFitrFull">Eid al-Fitr</span>
-                    </div>
-
-                    <!-- Takbeer Times -->
-                    <div style="margin-bottom: var(--space-l);">
-                        <label class="form-label-clean" data-i18n="takbeerSchedule">⏰ Takbeer Schedule</label>
-                        <div id="takbeerTimesList-EID_FITR" style="margin-top: var(--space-s);"></div>
-                        <button class="btn btn-secondary btn-sm" onclick="addTakbeerTime('EID_FITR')" style="margin-top: var(--space-m);">
-                            <span data-i18n="addTakbeerTime">➕ Add Time</span>
-                        </button>
-                    </div>
-
-                    <!-- Audio Files -->
-                    <div style="padding-top: var(--space-l); border-top: 1px solid var(--border);">
-                        <label class="form-label-clean" data-i18n="takbeerAudio">🎵 Takbeer Audio</label>
-                        <div id="fileList-HOLIDAY-EID_FITR" class="file-list" data-prayer="HOLIDAY-EID_FITR" style="margin-top: var(--space-s);"></div>
-                        <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                            <button class="btn btn-secondary btn-sm" onclick="addHolidayFile('EID_FITR')"><span data-i18n="addBtn">➕ Add</span></button>
-                            <button id="testBtn-HOLIDAY-EID_FITR" class="btn btn-secondary btn-sm" onclick="testHolidayAudio('EID_FITR')"><span data-i18n="test">▶️ Test</span></button>
-                            <button id="stopBtn-HOLIDAY-EID_FITR" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display: none;"><span data-i18n="stop">⏹️ Stop</span></button>
+                        <div class="collapsible-section">
+                            <div class="collapsible-header" onclick="toggleCollapsible(this)"><div class="collapsible-title"><span class="collapsible-icon">🌤️</span><span data-i18n="ASR">Asr</span></div><span class="collapsible-arrow">▼</span></div>
+                            <div class="collapsible-body"><div id="fileList-ASR" class="file-list" data-prayer="ASR"></div><div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addFile('ASR')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-ASR" class="btn btn-secondary btn-sm" onclick="testAudio('ASR')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-ASR" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div></div>
+                        </div>
+                        <div class="collapsible-section">
+                            <div class="collapsible-header" onclick="toggleCollapsible(this)"><div class="collapsible-title"><span class="collapsible-icon">🌅</span><span data-i18n="MAGHRIB">Maghrib</span></div><span class="collapsible-arrow">▼</span></div>
+                            <div class="collapsible-body"><div id="fileList-MAGHRIB" class="file-list" data-prayer="MAGHRIB"></div><div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addFile('MAGHRIB')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-MAGHRIB" class="btn btn-secondary btn-sm" onclick="testAudio('MAGHRIB')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-MAGHRIB" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div></div>
+                        </div>
+                        <div class="collapsible-section">
+                            <div class="collapsible-header" onclick="toggleCollapsible(this)"><div class="collapsible-title"><span class="collapsible-icon">🌙</span><span data-i18n="ISHA">Isha</span></div><span class="collapsible-arrow">▼</span></div>
+                            <div class="collapsible-body"><div id="fileList-ISHA" class="file-list" data-prayer="ISHA"></div><div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addFile('ISHA')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-ISHA" class="btn btn-secondary btn-sm" onclick="testAudio('ISHA')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-ISHA" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div></div>
+                        </div>
+                        <div class="collapsible-section">
+                            <div class="collapsible-header" onclick="toggleCollapsible(this)"><div class="collapsible-title"><span class="collapsible-icon">✨</span><span data-i18n="TASBEE7_1">Tasbee7 1</span></div><span class="collapsible-arrow">▼</span></div>
+                            <div class="collapsible-body"><div id="fileList-TASBEE7_1" class="file-list" data-prayer="TASBEE7_1"></div><div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addFile('TASBEE7_1')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-TASBEE7_1" class="btn btn-secondary btn-sm" onclick="testAudio('TASBEE7_1')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-TASBEE7_1" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div></div>
+                        </div>
+                        <div class="collapsible-section">
+                            <div class="collapsible-header" onclick="toggleCollapsible(this)"><div class="collapsible-title"><span class="collapsible-icon">✨</span><span data-i18n="TASBEE7_2">Tasbee7 2</span></div><span class="collapsible-arrow">▼</span></div>
+                            <div class="collapsible-body"><div id="fileList-TASBEE7_2" class="file-list" data-prayer="TASBEE7_2"></div><div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addFile('TASBEE7_2')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-TASBEE7_2" class="btn btn-secondary btn-sm" onclick="testAudio('TASBEE7_2')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-TASBEE7_2" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div></div>
+                        </div>
+                        <div class="collapsible-section">
+                            <div class="collapsible-header" onclick="toggleCollapsible(this)"><div class="collapsible-title"><span class="collapsible-icon">✨</span><span data-i18n="TASBEE7_3">Tasbee7 3</span></div><span class="collapsible-arrow">▼</span></div>
+                            <div class="collapsible-body"><div id="fileList-TASBEE7_3" class="file-list" data-prayer="TASBEE7_3"></div><div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addFile('TASBEE7_3')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-TASBEE7_3" class="btn btn-secondary btn-sm" onclick="testAudio('TASBEE7_3')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-TASBEE7_3" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div></div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Eid al-Adha -->
-                <div class="config-card">
-                    <div class="section-header" style="margin-top: 0;">
-                        <span class="section-header-icon">🐑</span>
-                        <span data-i18n="eidAdhaFull">Eid al-Adha</span>
+                    <div class="tab-save-row">
+                        <button class="btn btn-primary" onclick="saveConfig()">💾 <span data-i18n="saveConfig">Save Configuration</span></button>
                     </div>
+                </div><!-- end #tab-prayer-audio -->
 
-                    <!-- Takbeer Times -->
-                    <div style="margin-bottom: var(--space-l);">
-                        <label class="form-label-clean" data-i18n="takbeerSchedule">⏰ Takbeer Schedule</label>
-                        <div id="takbeerTimesList-EID_ADHA" style="margin-top: var(--space-s);"></div>
-                        <button class="btn btn-secondary btn-sm" onclick="addTakbeerTime('EID_ADHA')" style="margin-top: var(--space-m);">
-                            <span data-i18n="addTakbeerTime">➕ Add Time</span>
-                        </button>
-                    </div>
-
-                    <!-- Audio Files -->
-                    <div style="padding-top: var(--space-l); border-top: 1px solid var(--border);">
-                        <label class="form-label-clean" data-i18n="takbeerAudio">🎵 Takbeer Audio</label>
-                        <div id="fileList-HOLIDAY-EID_ADHA" class="file-list" data-prayer="HOLIDAY-EID_ADHA" style="margin-top: var(--space-s);"></div>
-                        <div class="action-buttons-clean" style="margin-top: var(--space-m);">
-                            <button class="btn btn-secondary btn-sm" onclick="addHolidayFile('EID_ADHA')"><span data-i18n="addBtn">➕ Add</span></button>
-                            <button id="testBtn-HOLIDAY-EID_ADHA" class="btn btn-secondary btn-sm" onclick="testHolidayAudio('EID_ADHA')"><span data-i18n="test">▶️ Test</span></button>
-                            <button id="stopBtn-HOLIDAY-EID_ADHA" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display: none;"><span data-i18n="stop">⏹️ Stop</span></button>
+                <!-- ══ TAB 4: Ramadan Audio ══ -->
+                <div class="cfg-tab-panel" id="tab-ramadan">
+                    <div class="config-card" style="margin-bottom:var(--space-l);background:linear-gradient(135deg,#0D1C2A 0%,#1B3A4B 60%,#244D64 100%);border:1px solid rgba(201,166,107,0.3);color:white;">
+                        <div style="display:flex;align-items:center;gap:var(--space-xl);flex-wrap:wrap;">
+                            <div style="font-size:2.8rem;line-height:1;flex-shrink:0;"></div>
+                            <div style="flex:1;min-width:200px;">
+                                <div style="font-size:1.1rem;font-weight:800;color:#F0D898;margin-bottom:6px;" data-i18n="ramadanAudioTitle">Ramadan Audio Configuration</div>
+                                <div style="font-size:0.88rem;color:rgba(240,216,152,0.8);line-height:1.6;" data-i18n="ramadanAudioSubtitle">Special audio files to play during the blessed month of Ramadan</div>
+                            </div>
+                            <div style="display:flex;flex-wrap:wrap;gap:8px;flex-shrink:0;max-width:300px;">
+                                <div th:each="prayer : ${config.audioConfig.ramadanAudioFiles}" style="display:flex;align-items:center;gap:6px;background:rgba(201,166,107,0.15);border:1px solid rgba(201,166,107,0.35);border-radius:10px;padding:6px 12px;">
+                                    <span style="font-size:0.8rem;font-weight:700;color:#F0D898;" th:text="${prayer.key}"></span>
+                                    <span style="font-size:0.75rem;color:rgba(240,216,152,0.7);"><th:block th:text="${#lists.size(prayer.value)}"></th:block> <span data-i18n="files">files</span></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- ============================================
-             LOG SETTINGS & LIVE LOG VIEWER
-             ============================================ -->
-        <div class="section-divider"></div>
-
-        <div class="section-header">
-            <span class="section-header-icon">📋</span>
-            <span data-i18n="logSectionTitle">Log Settings &amp; Viewer</span>
-        </div>
-
-        <!-- Log Configuration Card -->
-        <div class="config-card" id="logSettingsCard">
-            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:var(--space-l);">
-                <div style="display:flex;align-items:center;gap:10px;">
-                    <span style="font-size:1.6rem;">⚙️</span>
-                    <div>
-                        <div style="font-weight:700;font-size:1.1rem;color:var(--text-primary);" data-i18n="logConfigTitle">Log Configuration</div>
-                        <div style="font-size:0.82rem;color:var(--text-secondary);" data-i18n="logConfigSubtitle">Control where logs are saved, rotation and verbosity level</div>
+                    <div class="grid grid-3" style="margin-bottom:var(--space-2xl);">
+                        <div class="collapsible-section"><div class="collapsible-header" onclick="toggleCollapsible(this)"><div class="collapsible-title"><span class="collapsible-icon">🌅</span><span data-i18n="FAJR">Fajr</span></div><span class="collapsible-arrow">▼</span></div><div class="collapsible-body"><div id="fileList-RAMADAN-FAJR" class="file-list" data-prayer="RAMADAN-FAJR"></div><div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addRamadanFile('FAJR')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-RAMADAN-FAJR" class="btn btn-secondary btn-sm" onclick="testRamadanAudio('FAJR')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-RAMADAN-FAJR" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div></div></div>
+                        <div class="collapsible-section"><div class="collapsible-header" onclick="toggleCollapsible(this)"><div class="collapsible-title"><span class="collapsible-icon">☀️</span><span data-i18n="DHUHR">Dhuhr</span></div><span class="collapsible-arrow">▼</span></div><div class="collapsible-body"><div id="fileList-RAMADAN-DHUHR" class="file-list" data-prayer="RAMADAN-DHUHR"></div><div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addRamadanFile('DHUHR')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-RAMADAN-DHUHR" class="btn btn-secondary btn-sm" onclick="testRamadanAudio('DHUHR')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-RAMADAN-DHUHR" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div></div></div>
+                        <div class="collapsible-section"><div class="collapsible-header" onclick="toggleCollapsible(this)"><div class="collapsible-title"><span class="collapsible-icon">🌤️</span><span data-i18n="ASR">Asr</span></div><span class="collapsible-arrow">▼</span></div><div class="collapsible-body"><div id="fileList-RAMADAN-ASR" class="file-list" data-prayer="RAMADAN-ASR"></div><div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addRamadanFile('ASR')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-RAMADAN-ASR" class="btn btn-secondary btn-sm" onclick="testRamadanAudio('ASR')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-RAMADAN-ASR" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div></div></div>
+                        <div class="collapsible-section"><div class="collapsible-header" onclick="toggleCollapsible(this)"><div class="collapsible-title"><span class="collapsible-icon">🌅</span><span data-i18n="MAGHRIB">Maghrib</span></div><span class="collapsible-arrow">▼</span></div><div class="collapsible-body"><div id="fileList-RAMADAN-MAGHRIB" class="file-list" data-prayer="RAMADAN-MAGHRIB"></div><div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addRamadanFile('MAGHRIB')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-RAMADAN-MAGHRIB" class="btn btn-secondary btn-sm" onclick="testRamadanAudio('MAGHRIB')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-RAMADAN-MAGHRIB" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div></div></div>
+                        <div class="collapsible-section"><div class="collapsible-header" onclick="toggleCollapsible(this)"><div class="collapsible-title"><span class="collapsible-icon">🌙</span><span data-i18n="ISHA">Isha</span></div><span class="collapsible-arrow">▼</span></div><div class="collapsible-body"><div id="fileList-RAMADAN-ISHA" class="file-list" data-prayer="RAMADAN-ISHA"></div><div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addRamadanFile('ISHA')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-RAMADAN-ISHA" class="btn btn-secondary btn-sm" onclick="testRamadanAudio('ISHA')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-RAMADAN-ISHA" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div></div></div>
+                        <div class="collapsible-section"><div class="collapsible-header" onclick="toggleCollapsible(this)"><div class="collapsible-title"><span class="collapsible-icon">✨</span><span data-i18n="TASBEE7_1">Tasbee7 1</span></div><span class="collapsible-arrow">▼</span></div><div class="collapsible-body"><div id="fileList-RAMADAN-TASBEE7_1" class="file-list" data-prayer="RAMADAN-TASBEE7_1"></div><div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addRamadanFile('TASBEE7_1')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-RAMADAN-TASBEE7_1" class="btn btn-secondary btn-sm" onclick="testRamadanAudio('TASBEE7_1')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-RAMADAN-TASBEE7_1" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div></div></div>
+                        <div class="collapsible-section"><div class="collapsible-header" onclick="toggleCollapsible(this)"><div class="collapsible-title"><span class="collapsible-icon">✨</span><span data-i18n="TASBEE7_2">Tasbee7 2</span></div><span class="collapsible-arrow">▼</span></div><div class="collapsible-body"><div id="fileList-RAMADAN-TASBEE7_2" class="file-list" data-prayer="RAMADAN-TASBEE7_2"></div><div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addRamadanFile('TASBEE7_2')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-RAMADAN-TASBEE7_2" class="btn btn-secondary btn-sm" onclick="testRamadanAudio('TASBEE7_2')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-RAMADAN-TASBEE7_2" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div></div></div>
+                        <div class="collapsible-section"><div class="collapsible-header" onclick="toggleCollapsible(this)"><div class="collapsible-title"><span class="collapsible-icon">✨</span><span data-i18n="TASBEE7_3">Tasbee7 3</span></div><span class="collapsible-arrow">▼</span></div><div class="collapsible-body"><div id="fileList-RAMADAN-TASBEE7_3" class="file-list" data-prayer="RAMADAN-TASBEE7_3"></div><div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addRamadanFile('TASBEE7_3')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-RAMADAN-TASBEE7_3" class="btn btn-secondary btn-sm" onclick="testRamadanAudio('TASBEE7_3')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-RAMADAN-TASBEE7_3" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div></div></div>
                     </div>
-                </div>
-                <button class="btn btn-primary btn-sm" onclick="saveLogConfig()" style="min-width:140px;" data-i18n="logSaveBtn">💾 Save Log Config</button>
-            </div>
+                    <div class="tab-save-row">
+                        <button class="btn btn-primary" onclick="saveConfig()">💾 <span data-i18n="saveConfig">Save Configuration</span></button>
+                    </div>
+                </div><!-- end #tab-ramadan -->
 
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--space-l);">
+                <!-- ══ TAB 5: Takbeer Times ══ -->
+                <div class="cfg-tab-panel" id="tab-takbeer">
+                    <!-- Info card -->
+                    <div class="config-card" style="margin-bottom:var(--space-l);">
+                        <div style="display:flex;align-items:center;gap:var(--space-xl);flex-wrap:wrap;">
+                            <div style="font-size:2.8rem;line-height:1;flex-shrink:0;">🎊</div>
+                            <div style="flex:1;min-width:200px;">
+                                <div style="font-size:1.1rem;font-weight:800;color:var(--text-primary);margin-bottom:6px;" data-i18n="takbeerTimesTitle">Takbeer Times Configuration</div>
+                                <div style="font-size:0.88rem;color:var(--text-secondary);line-height:1.6;" data-i18n="takbeerTimesSubtitle">Configure when Takbeer should be played during Islamic holidays</div>
+                            </div>
+                            <div style="display:flex;gap:16px;flex-shrink:0;flex-wrap:wrap;">
+                                <div style="background:var(--bg-medium);border:1.5px solid var(--border);border-radius:14px;padding:12px 18px;text-align:center;min-width:120px;">
+                                    <div style="font-size:1.4rem;margin-bottom:4px;">🌙</div>
+                                    <div style="font-size:0.78rem;font-weight:700;color:var(--text-primary);margin-bottom:2px;" data-i18n="eidFitr">Eid al-Fitr</div>
+                                    <div style="font-size:0.75rem;color:var(--primary);font-weight:600;"><span th:text="${#lists.size(config.audioConfig.takbeerTimes['EID_FITR'] ?: {})}">0</span> <span data-i18n="times">times</span> · <span th:text="${#lists.size(config.audioConfig.islamicHolidayAudioFiles['EID_FITR'] ?: {})}">0</span> <span data-i18n="files">files</span></div>
+                                </div>
+                                <div style="background:var(--bg-medium);border:1.5px solid var(--border);border-radius:14px;padding:12px 18px;text-align:center;min-width:120px;">
+                                    <div style="font-size:1.4rem;margin-bottom:4px;">🐑</div>
+                                    <div style="font-size:0.78rem;font-weight:700;color:var(--text-primary);margin-bottom:2px;" data-i18n="eidAdha">Eid al-Adha</div>
+                                    <div style="font-size:0.75rem;color:var(--primary);font-weight:600;"><span th:text="${#lists.size(config.audioConfig.takbeerTimes['EID_ADHA'] ?: {})}">0</span> <span data-i18n="times">times</span> · <span th:text="${#lists.size(config.audioConfig.islamicHolidayAudioFiles['EID_ADHA'] ?: {})}">0</span> <span data-i18n="files">files</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-2" style="margin-bottom:var(--space-2xl);">
+                        <!-- Eid al-Fitr -->
+                        <div class="config-card">
+                            <div class="section-header" style="margin-top:0;"><span class="section-header-icon">🌙</span><span data-i18n="eidFitrFull">Eid al-Fitr</span></div>
+                            <div style="margin-bottom:var(--space-l);">
+                                <label class="form-label-clean" data-i18n="takbeerSchedule">⏰ Takbeer Schedule</label>
+                                <div id="takbeerTimesList-EID_FITR" style="margin-top:var(--space-s);"></div>
+                                <button class="btn btn-secondary btn-sm" onclick="addTakbeerTime('EID_FITR')" style="margin-top:var(--space-m);"><span data-i18n="addTakbeerTime">➕ Add Time</span></button>
+                            </div>
+                            <div style="padding-top:var(--space-l);border-top:1px solid var(--border);">
+                                <label class="form-label-clean" data-i18n="takbeerAudio">🎵 Takbeer Audio</label>
+                                <div id="fileList-HOLIDAY-EID_FITR" class="file-list" data-prayer="HOLIDAY-EID_FITR" style="margin-top:var(--space-s);"></div>
+                                <div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addHolidayFile('EID_FITR')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-HOLIDAY-EID_FITR" class="btn btn-secondary btn-sm" onclick="testHolidayAudio('EID_FITR')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-HOLIDAY-EID_FITR" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div>
+                            </div>
+                        </div>
+                        <!-- Eid al-Adha -->
+                        <div class="config-card">
+                            <div class="section-header" style="margin-top:0;"><span class="section-header-icon">🐑</span><span data-i18n="eidAdhaFull">Eid al-Adha</span></div>
+                            <div style="margin-bottom:var(--space-l);">
+                                <label class="form-label-clean" data-i18n="takbeerSchedule">⏰ Takbeer Schedule</label>
+                                <div id="takbeerTimesList-EID_ADHA" style="margin-top:var(--space-s);"></div>
+                                <button class="btn btn-secondary btn-sm" onclick="addTakbeerTime('EID_ADHA')" style="margin-top:var(--space-m);"><span data-i18n="addTakbeerTime">➕ Add Time</span></button>
+                            </div>
+                            <div style="padding-top:var(--space-l);border-top:1px solid var(--border);">
+                                <label class="form-label-clean" data-i18n="takbeerAudio">🎵 Takbeer Audio</label>
+                                <div id="fileList-HOLIDAY-EID_ADHA" class="file-list" data-prayer="HOLIDAY-EID_ADHA" style="margin-top:var(--space-s);"></div>
+                                <div class="action-buttons-clean" style="margin-top:var(--space-m);"><button class="btn btn-secondary btn-sm" onclick="addHolidayFile('EID_ADHA')"><span data-i18n="addBtn">➕ Add</span></button><button id="testBtn-HOLIDAY-EID_ADHA" class="btn btn-secondary btn-sm" onclick="testHolidayAudio('EID_ADHA')"><span data-i18n="test">▶️ Test</span></button><button id="stopBtn-HOLIDAY-EID_ADHA" class="btn btn-danger btn-sm" onclick="stopAudio()" style="display:none;"><span data-i18n="stop">⏹️ Stop</span></button></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-save-row">
+                        <button class="btn btn-primary" onclick="saveConfig()">💾 <span data-i18n="saveConfig">Save Configuration</span></button>
+                    </div>
+                </div><!-- end #tab-takbeer -->
 
-                <!-- Log file path -->
-                <div class="form-group-clean">
-                    <label class="form-label-clean" data-i18n="logFilePath">📁 Log File Path</label>
-                    <input type="text" class="form-input-clean" id="logFilePath" placeholder="logs/athan.log" value="logs/athan.log">
-                    <span class="form-hint-clean" data-i18n="logFilePathHint">Relative or absolute path. Directories are created automatically.</span>
-                </div>
+                <!-- ══ TAB 6: Audio Files ══ -->
+                <div class="cfg-tab-panel" id="tab-audio-files">
+                    <div class="section-header" style="margin-top:0;"><span class="section-header-icon"></span><span data-i18n="manageAudioFiles">Audio File Management</span></div>
+                    <div class="config-card" style="padding:0;overflow:hidden;">
+                        <div class="audio-manager-grid">
+                            <div class="audio-manager-upload">
+                                <input type="file" id="audioFileInput" class="upload-input" accept=".mp3,.wav" onchange="handleFileSelect(event)">
+                                <label for="audioFileInput" class="upload-label-clean">
+                                    <div class="upload-icon-clean">☁️⬆️</div>
+                                    <div class="upload-title-clean" data-i18n="uploadAudioFile">Upload Audio File</div>
+                                    <div class="upload-subtitle-clean" data-i18n="supportsFormats">Supports MP3 and WAV • Click or drag</div>
+                                </label>
+                            </div>
+                            <div class="audio-manager-list">
+                                <div class="audio-manager-list-header">
+                                    <span data-i18n="availableFiles">Available Audio Files</span>
+                                    <button class="btn btn-secondary btn-sm" onclick="refreshFileList()"><span data-i18n="refresh">🔄 Refresh</span></button>
+                                </div>
+                                <div id="availableFilesList" class="audio-files-grid"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-save-row">
+                        <button class="btn btn-primary" onclick="saveConfig()">💾 <span data-i18n="saveConfig">Save Configuration</span></button>
+                    </div>
+                </div><!-- end #tab-audio-files -->
 
-                <!-- Log level -->
-                <div class="form-group-clean">
-                    <label class="form-label-clean" data-i18n="logLevelLabel">🎚️ Log Level</label>
-                    <select id="logLevel" class="form-input-clean">
-                        <option value="TRACE" data-i18n="logLevelTrace">TRACE — Everything</option>
-                        <option value="DEBUG" data-i18n="logLevelDebug">DEBUG — Detailed</option>
-                        <option value="INFO" selected data-i18n="logLevelInfo">INFO — Normal</option>
-                        <option value="WARN" data-i18n="logLevelWarn">WARN — Warnings &amp; Errors</option>
-                        <option value="ERROR" data-i18n="logLevelError">ERROR — Errors Only</option>
-                    </select>
-                    <span class="form-hint-clean" data-i18n="logLevelHint">Lower levels produce more output and larger files.</span>
-                </div>
+                <!-- ══ TAB 7: Theme ══ -->
+                <div class="cfg-tab-panel" id="tab-theme">
+                    <div class="section-header" style="margin-top:0;"><span class="section-header-icon"></span><span data-i18n="themeSettings">Theme Settings</span></div>
+                    <div class="config-card">
+                        <div class="toggle-group-clean" style="margin-bottom:var(--space-l);">
+                            <label class="toggle-label-clean">
+                                <span style="font-size:1.3em;">🔄</span>
+                                <div>
+                                    <div style="font-weight:600;" data-i18n="themeAutomatic">Automatic Theme</div>
+                                    <div style="font-size:0.85rem;color:var(--text-secondary);" data-i18n="themeAutomaticHint">Switches to Ramadan / Eid automatically based on date</div>
+                                </div>
+                            </label>
+                            <label class="toggle-switch"><input type="checkbox" id="themeAutoToggle" onchange="onThemeAutoToggle(this.checked)"><span class="toggle-slider"></span></label>
+                        </div>
+                        <div id="themeManualPicker" style="display:none;">
+                            <label class="form-label-clean" data-i18n="themeChoose">Choose Theme</label>
+                            <div class="grid grid-3" style="margin-top:var(--space-m);gap:var(--space-m);">
+                                <div class="theme-option-card" data-theme="everyday" onclick="selectTheme('everyday')" style="cursor:pointer;border-radius:var(--radius-xl);border:2px solid var(--border);padding:var(--space-l);text-align:center;transition:all var(--transition-base);background:var(--card);">
+                                    <div style="font-size:2.5rem;margin-bottom:var(--space-s);">🌍</div>
+                                    <div style="font-weight:700;color:var(--text-primary);font-size:1.05rem;" data-i18n="themeEveryday">Everyday</div>
+                                    <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:var(--space-xs);" data-i18n="themeEverydayDesc">Clean minimal look</div>
+                                </div>
+                                <div class="theme-option-card" data-theme="ramadan" onclick="selectTheme('ramadan')" style="cursor:pointer;border-radius:var(--radius-xl);border:2px solid var(--border);padding:var(--space-l);text-align:center;transition:all var(--transition-base);background:var(--card);">
+                                    <div style="font-size:2.5rem;margin-bottom:var(--space-s);"></div>
+                                    <div style="font-weight:700;color:var(--text-primary);font-size:1.05rem;" data-i18n="themeRamadan">Ramadan</div>
+                                    <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:var(--space-xs);" data-i18n="themeRamadanDesc">Warm golden tones</div>
+                                </div>
+                                <div class="theme-option-card" data-theme="eid" onclick="selectTheme('eid')" style="cursor:pointer;border-radius:var(--radius-xl);border:2px solid var(--border);padding:var(--space-l);text-align:center;transition:all var(--transition-base);background:var(--card);">
+                                    <div style="font-size:2.5rem;margin-bottom:var(--space-s);">🎊</div>
+                                    <div style="font-weight:700;color:var(--text-primary);font-size:1.05rem;" data-i18n="themeEid">Eid</div>
+                                    <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:var(--space-xs);" data-i18n="themeEidDesc">Festive celebration</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top:var(--space-l);padding:var(--space-m) var(--space-l);background:var(--bg-medium);border-radius:var(--radius-l);display:flex;align-items:center;gap:var(--space-m);">
+                            <span id="currentThemeIcon" style="font-size:1.5rem;">🌍</span>
+                            <div>
+                                <div style="font-size:0.85rem;color:var(--text-secondary);" data-i18n="themeActive">Active Theme</div>
+                                <div id="currentThemeLabel" style="font-weight:600;color:var(--primary);font-family:var(--font-display);">Everyday</div>
+                            </div>
+                            <div id="themeAutoLabel" style="margin-left:auto;font-size:0.8rem;color:var(--text-secondary);background:var(--border);padding:3px 10px;border-radius:20px;" data-i18n="themeAutoLabel">Auto</div>
+                        </div>
+                    </div>
+                    <div class="tab-save-row">
+                        <button class="btn btn-primary" onclick="saveConfig()">💾 <span data-i18n="saveConfig">Save Configuration</span></button>
+                    </div>
+                </div><!-- end #tab-theme -->
 
-                <!-- Max file size -->
-                <div class="form-group-clean">
-                    <label class="form-label-clean" data-i18n="logMaxSizeLabel">📦 Max File Size (MB)</label>
-                    <input type="number" class="form-input-clean" id="logMaxFileSizeMB" min="1" max="500" value="10">
-                    <span class="form-hint-clean" data-i18n="logMaxSizeHint">Log file is rotated when it exceeds this size.</span>
-                </div>
+                <!-- ══ TAB 8: Logs ══ -->
+                <div class="cfg-tab-panel" id="tab-logs">
+                    <div class="section-header" style="margin-top:0;"><span class="section-header-icon">📋</span><span data-i18n="logSectionTitle">Log Settings &amp; Viewer</span></div>
+                    <div class="config-card" id="logSettingsCard">
+                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:var(--space-l);">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:1.6rem;">⚙️</span>
+                                <div>
+                                    <div style="font-weight:700;font-size:1.1rem;color:var(--text-primary);" data-i18n="logConfigTitle">Log Configuration</div>
+                                    <div style="font-size:0.82rem;color:var(--text-secondary);" data-i18n="logConfigSubtitle">Control where logs are saved, rotation and verbosity level</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="saveLogConfig()" style="min-width:140px;" data-i18n="logSaveBtn">💾 Save Log Config</button>
+                        </div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--space-l);">
+                            <div class="form-group-clean"><label class="form-label-clean" data-i18n="logFilePath">📁 Log File Path</label><input type="text" class="form-input-clean" id="logFilePath" placeholder="logs/athan.log" value="logs/athan.log"><span class="form-hint-clean" data-i18n="logFilePathHint">Relative or absolute path.</span></div>
+                            <div class="form-group-clean"><label class="form-label-clean" data-i18n="logLevelLabel">🎚️ Log Level</label><select id="logLevel" class="form-input-clean"><option value="TRACE" data-i18n="logLevelTrace">TRACE — Everything</option><option value="DEBUG" data-i18n="logLevelDebug">DEBUG — Detailed</option><option value="INFO" selected data-i18n="logLevelInfo">INFO — Normal</option><option value="WARN" data-i18n="logLevelWarn">WARN — Warnings &amp; Errors</option><option value="ERROR" data-i18n="logLevelError">ERROR — Errors Only</option></select><span class="form-hint-clean" data-i18n="logLevelHint">Lower levels produce more output.</span></div>
+                            <div class="form-group-clean"><label class="form-label-clean" data-i18n="logMaxSizeLabel">📦 Max File Size (MB)</label><input type="number" class="form-input-clean" id="logMaxFileSizeMB" min="1" max="500" value="10"><span class="form-hint-clean" data-i18n="logMaxSizeHint">Rotated when exceeded.</span></div>
+                            <div class="form-group-clean"><label class="form-label-clean" data-i18n="logMaxHistoryLabel">🗂️ Keep Rotated Files</label><input type="number" class="form-input-clean" id="logMaxHistory" min="1" max="90" value="7"><span class="form-hint-clean" data-i18n="logMaxHistoryHint">Number of archives to retain.</span></div>
+                            <div class="form-group-clean"><label class="form-label-clean" data-i18n="logViewerLinesLabel">👁️ Lines in Viewer</label><input type="number" class="form-input-clean" id="logMaxDisplayLines" min="50" max="2000" value="500"><span class="form-hint-clean" data-i18n="logViewerLinesHint">Tail lines to display.</span></div>
+                        </div>
+                        <div id="logFileMeta" style="margin-top:var(--space-l);padding:10px 16px;background:var(--bg-medium);border-radius:var(--radius-l);font-size:0.82rem;color:var(--text-secondary);display:none;"><span id="logFileMetaText">—</span></div>
+                    </div>
+                    <div class="config-card" style="padding:0;overflow:hidden;margin-top:var(--space-l);">
+                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:18px 24px;border-bottom:1px solid var(--border);background:var(--bg-medium);">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:1.4rem;">📜</span>
+                                <span style="font-weight:700;color:var(--text-primary);font-size:1.05rem;" data-i18n="logViewerTitle">Live Log Viewer</span>
+                                <span id="logBadge" style="background:var(--primary);color:white;font-size:0.72rem;font-weight:700;padding:2px 9px;border-radius:20px;">0 lines</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                <input type="text" id="logFilter" data-i18n-placeholder="logFilterPlaceholder" placeholder="🔍 Filter…" oninput="filterLogView()" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-light);color:var(--text-primary);font-size:0.85rem;min-width:160px;">
+                                <select id="logLevelFilter" onchange="filterLogView()" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-light);color:var(--text-primary);font-size:0.85rem;"><option value="" data-i18n="logAllLevels">All Levels</option><option value="ERROR">ERROR</option><option value="WARN">WARN</option><option value="INFO">INFO</option><option value="DEBUG">DEBUG</option><option value="TRACE">TRACE</option></select>
+                                <button class="btn btn-secondary btn-sm" onclick="loadLogs()" data-i18n="refresh">🔄 Refresh</button>
+                                <button class="btn btn-secondary btn-sm" onclick="toggleAutoRefresh()" id="autoRefreshBtn" data-i18n="logAutoRefresh">⏵ Auto</button>
+                                <button class="btn btn-secondary btn-sm" onclick="scrollLogsToBottom()" data-i18n="logScrollBottom">⬇️ Bottom</button>
+                                <button class="btn btn-secondary btn-sm" onclick="copyLogs()" data-i18n="logCopy">📋 Copy</button>
+                            </div>
+                        </div>
+                        <div id="logViewer" style="font-family:'IBM Plex Mono','SFMono-Regular','Fira Code','Menlo',monospace;font-size:0.78rem;line-height:1.65;background:#0d1117;color:#c9d1d9;padding:20px 24px;min-height:320px;max-height:520px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;border-radius:0 0 var(--radius-xl) var(--radius-xl);">
+                            <div id="logViewerPlaceholder" style="text-align:center;color:#58a6ff;padding:40px 0;font-size:0.9rem;" data-i18n="logViewerPlaceholder">✨ Click 🔄 Refresh or enable ⏵ Auto to load logs</div>
+                        </div>
+                    </div>
+                </div><!-- end #tab-logs -->
 
-                <!-- Max history -->
-                <div class="form-group-clean">
-                    <label class="form-label-clean" data-i18n="logMaxHistoryLabel">🗂️ Keep Rotated Files</label>
-                    <input type="number" class="form-input-clean" id="logMaxHistory" min="1" max="90" value="7">
-                    <span class="form-hint-clean" data-i18n="logMaxHistoryHint">Number of rotated archive files to retain.</span>
-                </div>
-
-                <!-- Lines to display -->
-                <div class="form-group-clean">
-                    <label class="form-label-clean" data-i18n="logViewerLinesLabel">👁️ Lines in Viewer</label>
-                    <input type="number" class="form-input-clean" id="logMaxDisplayLines" min="50" max="2000" value="500">
-                    <span class="form-hint-clean" data-i18n="logViewerLinesHint">How many tail lines to display in the viewer below.</span>
-                </div>
-            </div>
-
-            <!-- File meta bar -->
-            <div id="logFileMeta" style="margin-top:var(--space-l);padding:10px 16px;background:var(--bg-medium);border-radius:var(--radius-l);font-size:0.82rem;color:var(--text-secondary);display:none;">
-                <span id="logFileMetaText">—</span>
-            </div>
-        </div>
-
-        <!-- Live Log Viewer Card -->
-        <div class="config-card" style="padding:0;overflow:hidden;margin-top:var(--space-l);">
-
-            <!-- Viewer header toolbar -->
-            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:18px 24px;border-bottom:1px solid var(--border);background:var(--bg-medium);">
-                <div style="display:flex;align-items:center;gap:10px;">
-                    <span style="font-size:1.4rem;">📜</span>
-                    <span style="font-weight:700;color:var(--text-primary);font-size:1.05rem;" data-i18n="logViewerTitle">Live Log Viewer</span>
-                    <span id="logBadge" style="background:var(--primary);color:white;font-size:0.72rem;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:0.05em;">0 lines</span>
-                </div>
-                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                    <!-- Filter -->
-                    <input type="text" id="logFilter" data-i18n-placeholder="logFilterPlaceholder" placeholder="🔍 Filter…" oninput="filterLogView()"
-                           style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-light);color:var(--text-primary);font-size:0.85rem;min-width:160px;">
-                    <!-- Level filter -->
-                    <select id="logLevelFilter" onchange="filterLogView()"
-                            style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-light);color:var(--text-primary);font-size:0.85rem;">
-                        <option value="" data-i18n="logAllLevels">All Levels</option>
-                        <option value="ERROR">ERROR</option>
-                        <option value="WARN">WARN</option>
-                        <option value="INFO">INFO</option>
-                        <option value="DEBUG">DEBUG</option>
-                        <option value="TRACE">TRACE</option>
-                    </select>
-                    <button class="btn btn-secondary btn-sm" onclick="loadLogs()" data-i18n="refresh">🔄 Refresh</button>
-                    <button class="btn btn-secondary btn-sm" onclick="toggleAutoRefresh()" id="autoRefreshBtn" data-i18n="logAutoRefresh">⏵ Auto</button>
-                    <button class="btn btn-secondary btn-sm" onclick="scrollLogsToBottom()" data-i18n="logScrollBottom">⬇️ Bottom</button>
-                    <button class="btn btn-secondary btn-sm" onclick="copyLogs()" data-i18n="logCopy">📋 Copy</button>
-                </div>
-            </div>
-
-            <!-- Log terminal output -->
-            <div id="logViewer" style="
-                font-family: 'IBM Plex Mono','SFMono-Regular','Fira Code','Menlo',monospace;
-                font-size: 0.78rem;
-                line-height: 1.65;
-                background: #0d1117;
-                color: #c9d1d9;
-                padding: 20px 24px;
-                min-height: 320px;
-                max-height: 520px;
-                overflow-y: auto;
-                white-space: pre-wrap;
-                word-break: break-all;
-                border-radius: 0 0 var(--radius-xl) var(--radius-xl);
-            ">
-                <div id="logViewerPlaceholder" style="text-align:center;color:#58a6ff;padding:40px 0;font-size:0.9rem;" data-i18n="logViewerPlaceholder">
-                    ✨ Click 🔄 Refresh or enable ⏵ Auto to load logs
-                </div>
-            </div>
-        </div>
-
-        <!-- ============================================
-             SAVE BUTTON
-             ============================================ -->
-        <div style="text-align: center; margin-top: var(--space-2xl); padding: var(--space-xl) 0;">
-            <button class="btn btn-primary" onclick="saveConfig()" style="min-width: 300px; font-size: 1.1rem;">
-                💾 <span data-i18n="saveConfig">Save Configuration</span>
-            </button>
-        </div>
+            </div><!-- end .cfg-tab-panels -->
+        </div><!-- end .cfg-tabs-wrapper -->
 
         <!-- Notification -->
         <div id="notification" class="notification"></div>
@@ -1181,4 +917,3 @@
     <script th:src="@{/js/theme-manager.js}"></script>
 </body>
 </html>
-

@@ -102,6 +102,18 @@ function applyLanguage() {
     if (logPlaceholder && !_allLogLines.length) logPlaceholder.textContent = lang.logViewerPlaceholder || logPlaceholder.textContent;
     var logBadge = document.getElementById('logBadge');
     if (logBadge && _allLogLines.length === 0) logBadge.textContent = '0 ' + (lang.logLines || 'lines');
+    // Refresh tab button labels
+    document.querySelectorAll('.cfg-tab-btn[data-tab]').forEach(function(btn) {
+        var tabId = btn.getAttribute('data-tab');
+        var keyMap = {
+            'tab-location': 'tabLocation', 'tab-special': 'tabSpecial',
+            'tab-prayer-audio': 'tabPrayerAudio', 'tab-ramadan': 'tabRamadan',
+            'tab-takbeer': 'tabTakbeer', 'tab-audio-files': 'tabAudioFiles',
+            'tab-theme': 'tabTheme', 'tab-logs': 'tabLogs'
+        };
+        var span = btn.querySelector('span[data-i18n]');
+        if (span && keyMap[tabId] && lang[keyMap[tabId]]) span.textContent = lang[keyMap[tabId]];
+    });
 
     Object.keys(prayerFiles).forEach(p => renderFileList(p));
     Object.keys(ramadanFiles).forEach(p => renderRamadanFileList(p));
@@ -234,6 +246,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (el) el.textContent = this.value + '%';
         });
 
+        // Restore active tab (after toggles so tab visibility is correct)
+        setTimeout(restoreTab, 50);
+
         console.log('DOMContentLoaded — init complete');
     } catch(err) {
         console.error('CRITICAL INIT ERROR:', err);
@@ -287,22 +302,74 @@ function updateThemeStatusBar() {
 }
 
 // ════════════════════════════════════════
+//  TAB SYSTEM
+// ════════════════════════════════════════
+function switchTab(tabId, btnEl) {
+    // Deactivate all panels and buttons
+    document.querySelectorAll('.cfg-tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.cfg-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    // Activate selected
+    var panel = document.getElementById(tabId);
+    if (panel) panel.classList.add('active');
+    if (btnEl) btnEl.classList.add('active');
+    // Persist in both storages so reload returns to same tab
+    try { localStorage.setItem('activeTab', tabId); sessionStorage.setItem('activeTab', tabId); } catch(e) {}
+}
+
+function restoreTab() {
+    var saved = null;
+    try { saved = sessionStorage.getItem('activeTab') || localStorage.getItem('activeTab'); } catch(e) {}
+    if (saved) {
+        var btn = document.querySelector('.cfg-tab-btn[data-tab="' + saved + '"]');
+        if (btn && btn.style.display !== 'none') { switchTab(saved, btn); return; }
+    }
+    // default: first tab
+    var firstBtn = document.querySelector('.cfg-tab-btn');
+    if (firstBtn) switchTab(firstBtn.getAttribute('data-tab'), firstBtn);
+}
+
+// ════════════════════════════════════════
 //  TOGGLE UI SECTIONS
 // ════════════════════════════════════════
 function toggleRamadanUI() {
     var el = document.getElementById('ramadanMode');
     var ramadanMode = el ? el.checked : false;
-    var ramadanCard = document.getElementById('ramadanAudioCard');
-    if (ramadanCard) ramadanCard.style.display = ramadanMode ? 'block' : 'none';
+    // Show/hide the Ramadan Audio tab button
+    var tabBtn = document.getElementById('tabBtnRamadan');
+    if (tabBtn) tabBtn.style.display = ramadanMode ? 'flex' : 'none';
+    // Highlight Special Modes card border
     var modeCard = document.getElementById('ramadanModeCard');
     if (modeCard) modeCard.style.borderColor = ramadanMode ? 'var(--primary)' : '';
+    // Update status badge
+    var badge = document.getElementById('specialModeRamadanStatus');
+    if (badge) badge.textContent = ramadanMode ? (t('modeActive','Active') + ' ✅') : t('modeOff','Off');
+    // If disabling and currently on that tab, switch back to special modes tab
+    if (!ramadanMode) {
+        var activePanel = document.querySelector('.cfg-tab-panel.active');
+        if (activePanel && activePanel.id === 'tab-ramadan') {
+            var specialBtn = document.querySelector('.cfg-tab-btn[data-tab="tab-special"]');
+            switchTab('tab-special', specialBtn);
+        }
+    }
 }
 
 function toggleIslamicHolidaysUI() {
     var el = document.getElementById('islamicHolidaysToggle');
     var enabled = el ? el.checked : false;
-    var holidaysCard = document.getElementById('islamicHolidaysCard');
-    if (holidaysCard) holidaysCard.style.display = enabled ? 'block' : 'none';
+    // Show/hide the Takbeer tab button
+    var tabBtn = document.getElementById('tabBtnTakbeer');
+    if (tabBtn) tabBtn.style.display = enabled ? 'flex' : 'none';
+    // Update status badge
+    var badge = document.getElementById('specialModeHolidaysStatus');
+    if (badge) badge.textContent = enabled ? (t('modeActive','Active') + ' ✅') : t('modeOff','Off');
+    // If disabling and currently on that tab, switch back
+    if (!enabled) {
+        var activePanel = document.querySelector('.cfg-tab-panel.active');
+        if (activePanel && activePanel.id === 'tab-takbeer') {
+            var specialBtn = document.querySelector('.cfg-tab-btn[data-tab="tab-special"]');
+            switchTab('tab-special', specialBtn);
+        }
+    }
 }
 
 // ════════════════════════════════════════
@@ -642,6 +709,15 @@ function renderTakbeerTimesList(holiday) {
 // ════════════════════════════════════════
 //  SAVE CONFIG
 // ════════════════════════════════════════
+function getVal(id, fallback) {
+    var el = document.getElementById(id);
+    return el ? el.value : (fallback !== undefined ? fallback : '');
+}
+function getChecked(id, fallback) {
+    var el = document.getElementById(id);
+    return el ? el.checked : (fallback !== undefined ? fallback : false);
+}
+
 function saveConfig() {
     var audioFilesConfig = {};
     Object.keys(prayerFiles).forEach(function(prayer) { audioFilesConfig[prayer] = prayerFiles[prayer]; });
@@ -652,20 +728,27 @@ function saveConfig() {
     var takbeerTimesConfig = {};
     Object.keys(takbeerTimes).forEach(function(holiday) { takbeerTimesConfig[holiday] = takbeerTimes[holiday]; });
 
+    var lat = parseFloat(getVal('latitude', '0'));
+    var lng = parseFloat(getVal('longitude', '0'));
+    if (isNaN(lat) || isNaN(lng)) {
+        showNotification('❌ Invalid coordinates — please enter valid latitude and longitude.', 'error');
+        return;
+    }
+
     var config = {
-        city: document.getElementById('city').value,
-        latitude: parseFloat(document.getElementById('latitude').value),
-        longitude: parseFloat(document.getElementById('longitude').value),
-        timezone: document.getElementById('timezone').value,
-        calculationMethod: document.getElementById('calculationMethod').value,
-        fajrOffsetMinutes: parseInt(document.getElementById('fajrOffsetMinutes').value) || 0,
-        maghribOffsetMinutes: parseInt(document.getElementById('maghribOffsetMinutes').value) || 0,
+        city: getVal('city'),
+        latitude: lat,
+        longitude: lng,
+        timezone: getVal('timezone'),
+        calculationMethod: getVal('calculationMethod'),
+        fajrOffsetMinutes: parseInt(getVal('fajrOffsetMinutes', '0')) || 0,
+        maghribOffsetMinutes: parseInt(getVal('maghribOffsetMinutes', '0')) || 0,
         audioConfig: {
-            enabled: document.getElementById('audioEnabled').checked,
-            volume: parseInt(document.getElementById('volume').value),
-            outputDevice: document.getElementById('outputDevice').value,
-            ramadanMode: document.getElementById('ramadanMode').checked,
-            islamicHolidaysEnabled: document.getElementById('islamicHolidaysToggle').checked,
+            enabled: getChecked('audioEnabled', true),
+            volume: parseInt(getVal('volume', '80')) || 80,
+            outputDevice: getVal('outputDevice', 'default'),
+            ramadanMode: getChecked('ramadanMode', false),
+            islamicHolidaysEnabled: getChecked('islamicHolidaysToggle', false),
             prayerAudioFiles: audioFilesConfig,
             ramadanAudioFiles: ramadanAudioFiles,
             islamicHolidayAudioFiles: islamicHolidayAudioFiles,
@@ -674,9 +757,25 @@ function saveConfig() {
     };
 
     fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(config) })
-        .then(function(r) { return r.json(); })
-        .then(function(data) { showNotification(data.message, 'success'); setTimeout(function() { location.reload(); }, 1500); })
-        .catch(function() { showNotification(t('configError','Error saving configuration'), 'error'); });
+        .then(function(r) {
+            if (!r.ok) {
+                return r.json().then(function(d) { throw new Error(d.message || 'HTTP ' + r.status); });
+            }
+            return r.json();
+        })
+        .then(function(data) {
+            if (data.success === false) {
+                console.error('Save config error:', data.message);
+                showNotification('❌ ' + (data.message || t('configError', 'Error saving configuration')), 'error');
+                return;
+            }
+            showNotification('✅ ' + (data.message || t('configSaved', 'Configuration saved successfully')), 'success');
+            setTimeout(function() { location.reload(); }, 1500);
+        })
+        .catch(function(err) {
+            console.error('Save config exception:', err);
+            showNotification('❌ ' + (err.message || t('configError', 'Error saving configuration')), 'error');
+        });
 }
 
 // ════════════════════════════════════════
