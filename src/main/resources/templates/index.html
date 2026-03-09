@@ -1026,6 +1026,131 @@
 
 
         <!-- ============================================
+             LOG SETTINGS & LIVE LOG VIEWER
+             ============================================ -->
+        <div class="section-divider"></div>
+
+        <div class="section-header">
+            <span class="section-header-icon">📋</span>
+            <span data-i18n="logSectionTitle">Log Settings &amp; Viewer</span>
+        </div>
+
+        <!-- Log Configuration Card -->
+        <div class="config-card" id="logSettingsCard">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:var(--space-l);">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:1.6rem;">⚙️</span>
+                    <div>
+                        <div style="font-weight:700;font-size:1.1rem;color:var(--text-primary);" data-i18n="logConfigTitle">Log Configuration</div>
+                        <div style="font-size:0.82rem;color:var(--text-secondary);" data-i18n="logConfigSubtitle">Control where logs are saved, rotation and verbosity level</div>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="saveLogConfig()" style="min-width:140px;" data-i18n="logSaveBtn">💾 Save Log Config</button>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--space-l);">
+
+                <!-- Log file path -->
+                <div class="form-group-clean">
+                    <label class="form-label-clean" data-i18n="logFilePath">📁 Log File Path</label>
+                    <input type="text" class="form-input-clean" id="logFilePath" placeholder="logs/athan.log" value="logs/athan.log">
+                    <span class="form-hint-clean" data-i18n="logFilePathHint">Relative or absolute path. Directories are created automatically.</span>
+                </div>
+
+                <!-- Log level -->
+                <div class="form-group-clean">
+                    <label class="form-label-clean" data-i18n="logLevelLabel">🎚️ Log Level</label>
+                    <select id="logLevel" class="form-input-clean">
+                        <option value="TRACE" data-i18n="logLevelTrace">TRACE — Everything</option>
+                        <option value="DEBUG" data-i18n="logLevelDebug">DEBUG — Detailed</option>
+                        <option value="INFO" selected data-i18n="logLevelInfo">INFO — Normal</option>
+                        <option value="WARN" data-i18n="logLevelWarn">WARN — Warnings &amp; Errors</option>
+                        <option value="ERROR" data-i18n="logLevelError">ERROR — Errors Only</option>
+                    </select>
+                    <span class="form-hint-clean" data-i18n="logLevelHint">Lower levels produce more output and larger files.</span>
+                </div>
+
+                <!-- Max file size -->
+                <div class="form-group-clean">
+                    <label class="form-label-clean" data-i18n="logMaxSizeLabel">📦 Max File Size (MB)</label>
+                    <input type="number" class="form-input-clean" id="logMaxFileSizeMB" min="1" max="500" value="10">
+                    <span class="form-hint-clean" data-i18n="logMaxSizeHint">Log file is rotated when it exceeds this size.</span>
+                </div>
+
+                <!-- Max history -->
+                <div class="form-group-clean">
+                    <label class="form-label-clean" data-i18n="logMaxHistoryLabel">🗂️ Keep Rotated Files</label>
+                    <input type="number" class="form-input-clean" id="logMaxHistory" min="1" max="90" value="7">
+                    <span class="form-hint-clean" data-i18n="logMaxHistoryHint">Number of rotated archive files to retain.</span>
+                </div>
+
+                <!-- Lines to display -->
+                <div class="form-group-clean">
+                    <label class="form-label-clean" data-i18n="logViewerLinesLabel">👁️ Lines in Viewer</label>
+                    <input type="number" class="form-input-clean" id="logMaxDisplayLines" min="50" max="2000" value="500">
+                    <span class="form-hint-clean" data-i18n="logViewerLinesHint">How many tail lines to display in the viewer below.</span>
+                </div>
+            </div>
+
+            <!-- File meta bar -->
+            <div id="logFileMeta" style="margin-top:var(--space-l);padding:10px 16px;background:var(--bg-medium);border-radius:var(--radius-l);font-size:0.82rem;color:var(--text-secondary);display:none;">
+                <span id="logFileMetaText">—</span>
+            </div>
+        </div>
+
+        <!-- Live Log Viewer Card -->
+        <div class="config-card" style="padding:0;overflow:hidden;margin-top:var(--space-l);">
+
+            <!-- Viewer header toolbar -->
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:18px 24px;border-bottom:1px solid var(--border);background:var(--bg-medium);">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:1.4rem;">📜</span>
+                    <span style="font-weight:700;color:var(--text-primary);font-size:1.05rem;" data-i18n="logViewerTitle">Live Log Viewer</span>
+                    <span id="logBadge" style="background:var(--primary);color:white;font-size:0.72rem;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:0.05em;">0 lines</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <!-- Filter -->
+                    <input type="text" id="logFilter" data-i18n-placeholder="logFilterPlaceholder" placeholder="🔍 Filter…" oninput="filterLogView()"
+                           style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-light);color:var(--text-primary);font-size:0.85rem;min-width:160px;">
+                    <!-- Level filter -->
+                    <select id="logLevelFilter" onchange="filterLogView()"
+                            style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-light);color:var(--text-primary);font-size:0.85rem;">
+                        <option value="" data-i18n="logAllLevels">All Levels</option>
+                        <option value="ERROR">ERROR</option>
+                        <option value="WARN">WARN</option>
+                        <option value="INFO">INFO</option>
+                        <option value="DEBUG">DEBUG</option>
+                        <option value="TRACE">TRACE</option>
+                    </select>
+                    <button class="btn btn-secondary btn-sm" onclick="loadLogs()" data-i18n="refresh">🔄 Refresh</button>
+                    <button class="btn btn-secondary btn-sm" onclick="toggleAutoRefresh()" id="autoRefreshBtn" data-i18n="logAutoRefresh">⏵ Auto</button>
+                    <button class="btn btn-secondary btn-sm" onclick="scrollLogsToBottom()" data-i18n="logScrollBottom">⬇️ Bottom</button>
+                    <button class="btn btn-secondary btn-sm" onclick="copyLogs()" data-i18n="logCopy">📋 Copy</button>
+                </div>
+            </div>
+
+            <!-- Log terminal output -->
+            <div id="logViewer" style="
+                font-family: 'IBM Plex Mono','SFMono-Regular','Fira Code','Menlo',monospace;
+                font-size: 0.78rem;
+                line-height: 1.65;
+                background: #0d1117;
+                color: #c9d1d9;
+                padding: 20px 24px;
+                min-height: 320px;
+                max-height: 520px;
+                overflow-y: auto;
+                white-space: pre-wrap;
+                word-break: break-all;
+                border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+            ">
+                <div id="logViewerPlaceholder" style="text-align:center;color:#58a6ff;padding:40px 0;font-size:0.9rem;" data-i18n="logViewerPlaceholder">
+                    ✨ Click 🔄 Refresh or enable ⏵ Auto to load logs
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
              SAVE BUTTON
              ============================================ -->
         <div style="text-align: center; margin-top: var(--space-2xl); padding: var(--space-xl) 0;">

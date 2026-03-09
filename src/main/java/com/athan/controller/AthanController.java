@@ -1,10 +1,12 @@
 package com.athan.controller;
 
+import com.athan.model.LogConfig;
 import com.athan.model.PrayerConfig;
 import com.athan.service.AthanSchedulerService;
 import com.athan.service.AudioPlayerService;
 import com.athan.service.ConfigService;
 import com.athan.service.IslamicHolidayService;
+import com.athan.service.LogConfigService;
 import com.athan.service.PrayerTimeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +43,9 @@ public class AthanController {
 
     @Autowired
     private IslamicHolidayService islamicHolidayService;
+
+    @Autowired
+    private LogConfigService logConfigService;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -276,6 +281,46 @@ public class AthanController {
             .map(File::getName)
             .sorted()
             .collect(Collectors.toList());
+    }
+
+    // ─── Log Configuration & Viewer ────────────────────────────────────
+
+    @GetMapping("/api/log-config")
+    @ResponseBody
+    public ResponseEntity<?> getLogConfig() {
+        return ResponseEntity.ok(logConfigService.getConfig());
+    }
+
+    @PostMapping("/api/log-config")
+    @ResponseBody
+    public ResponseEntity<?> saveLogConfig(@RequestBody LogConfig config) {
+        try {
+            // Validate level
+            List<String> validLevels = Arrays.asList("TRACE", "DEBUG", "INFO", "WARN", "ERROR");
+            if (!validLevels.contains(config.getLogLevel().toUpperCase())) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Invalid log level"));
+            }
+            config.setLogLevel(config.getLogLevel().toUpperCase());
+            logConfigService.saveConfig(config);
+            return ResponseEntity.ok(Map.of("success", true, "message", "Log configuration saved"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/api/logs")
+    @ResponseBody
+    public ResponseEntity<?> getLogs(@RequestParam(value = "lines", defaultValue = "500") int lines) {
+        try {
+            lines = Math.min(lines, 2000); // hard cap
+            List<String> logLines = logConfigService.readRecentLogs(lines);
+            Map<String, Object> result = new LinkedHashMap<>();
+            result.put("lines", logLines);
+            result.put("meta", logConfigService.getLogFileMeta());
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
     }
 
     private List<String> getCalculationMethods() {

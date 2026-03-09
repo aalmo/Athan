@@ -97,6 +97,11 @@ function applyLanguage() {
     window._currentLang = lang;
     if (typeof window._refreshCountdownName === 'function') window._refreshCountdownName();
     updateDarkModeText();
+    // Refresh log viewer placeholder text
+    var logPlaceholder = document.getElementById('logViewerPlaceholder');
+    if (logPlaceholder && !_allLogLines.length) logPlaceholder.textContent = lang.logViewerPlaceholder || logPlaceholder.textContent;
+    var logBadge = document.getElementById('logBadge');
+    if (logBadge && _allLogLines.length === 0) logBadge.textContent = '0 ' + (lang.logLines || 'lines');
 
     Object.keys(prayerFiles).forEach(p => renderFileList(p));
     Object.keys(ramadanFiles).forEach(p => renderRamadanFileList(p));
@@ -720,7 +725,7 @@ var prayerDisplayNames = {
 var tomorrowPrayerTimesRaw = null;
 var tomorrowFetchPending = false;
 
-function fetchTomorrowPrayerTimes() {
+function fetchTomorrowPrayerTimes(callback) {
     if (tomorrowFetchPending) return;
     tomorrowFetchPending = true;
     fetch('/api/prayer-times/tomorrow')
@@ -728,9 +733,13 @@ function fetchTomorrowPrayerTimes() {
         .then(function(times) {
             tomorrowPrayerTimesRaw = times;
             tomorrowFetchPending = false;
+            if (typeof callback === 'function') callback();
         })
         .catch(function() { tomorrowFetchPending = false; });
 }
+
+// Eagerly pre-fetch tomorrow's times so the countdown never shows dashes
+fetchTomorrowPrayerTimes();
 
 function parsePrayerTime(timeStr) {
     if (!timeStr) return null;
@@ -912,5 +921,166 @@ setInterval(function() {
         .then(function(r) { return r.json(); })
         .then(function(times) { console.log('Prayer times updated:', times); });
 }, 60000);
+
+// ════════════════════════════════════════
+//  LOG VIEWER & LOG CONFIGURATION
+// ════════════════════════════════════════
+
+var _allLogLines = [];
+var _autoRefreshTimer = null;
+var _autoRefreshActive = false;
+
+/** Load log config from server and populate form fields */
+function loadLogConfig() {
+    fetch('/api/log-config')
+        .then(function(r) { return r.json(); })
+        .then(function(cfg) {
+            var p  = document.getElementById('logFilePath');
+            var lv = document.getElementById('logLevel');
+            var sz = document.getElementById('logMaxFileSizeMB');
+            var mh = document.getElementById('logMaxHistory');
+            var dl = document.getElementById('logMaxDisplayLines');
+            if (p)  p.value  = cfg.logFilePath        || 'logs/athan.log';
+            if (lv) lv.value = (cfg.logLevel          || 'INFO').toUpperCase();
+            if (sz) sz.value = cfg.maxFileSizeMB       || 10;
+            if (mh) mh.value = cfg.maxHistory          || 7;
+            if (dl) dl.value = cfg.maxDisplayLines     || 500;
+        })
+        .catch(function(e) { console.warn('Could not load log config:', e); });
+}
+
+/** Save log config to server */
+function saveLogConfig() {
+    var cfg = {
+        logFilePath:     (document.getElementById('logFilePath')       || {}).value || 'logs/athan.log',
+        logLevel:        (document.getElementById('logLevel')          || {}).value || 'INFO',
+        maxFileSizeMB:   parseInt((document.getElementById('logMaxFileSizeMB')  || {}).value)  || 10,
+        maxHistory:      parseInt((document.getElementById('logMaxHistory')      || {}).value)  || 7,
+        maxDisplayLines: parseInt((document.getElementById('logMaxDisplayLines') || {}).value)  || 500
+    };
+    fetch('/api/log-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cfg)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        showNotification(data.success ? t('logConfigSaved', '✅ Log configuration saved') : '❌ ' + data.message,
+                         data.success ? 'success' : 'error');
+        if (data.success) loadLogs();
+    })
+    .catch(function(e) { showNotification('❌ ' + t('logConfigError', 'Error saving log config') + ': ' + e.message, 'error'); });
+}
+
+/** Fetch logs from server and render them */
+function loadLogs() {
+    var lines = parseInt((document.getElementById('logMaxDisplayLines') || {}).value) || 500;
+    fetch('/api/logs?lines=' + lines)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            _allLogLines = data.lines || [];
+            renderLogMeta(data.meta);
+            filterLogView();
+        })
+        .catch(function(e) { renderLogError('Error fetching logs: ' + e.message); });
+}
+
+function renderLogMeta(meta) {
+    var bar = document.getElementById('logFileMeta');
+    var txt = document.getElementById('logFileMetaText');
+    if (!bar || !meta) return;
+    bar.style.display = 'block';
+    var exists = meta.exists ? '✅ File found' : '⚠️ File not found yet';
+    var size   = meta.sizeKB !== undefined ? ' · ' + meta.sizeKB + ' KB' : '';
+    var mod    = meta.lastModified ? ' · Last modified: ' + meta.lastModified.replace('T',' ').replace('Z','') : '';
+    txt.textContent = exists + ' · ' + meta.path + size + mod;
+}
+
+function renderLogError(msg) {
+    var viewer = document.getElementById('logViewer');
+    if (viewer) viewer.innerHTML = '<div style="color:#f85149;padding:20px;">' + escapeHtml(msg) + '</div>';
+}
+
+/** Apply text + level filter and colorize */
+function filterLogView() {
+    var viewer  = document.getElementById('logViewer');
+    var badge   = document.getElementById('logBadge');
+    if (!viewer) return;
+
+    var textFilter  = ((document.getElementById('logFilter')      || {}).value || '').toLowerCase();
+    var levelFilter = ((document.getElementById('logLevelFilter') || {}).value || '').toUpperCase();
+
+    var filtered = _allLogLines.filter(function(line) {
+        if (textFilter  && line.toLowerCase().indexOf(textFilter)  === -1) return false;
+        if (levelFilter && line.toUpperCase().indexOf(' ' + levelFilter + ' ') === -1) return false;
+        return true;
+    });
+
+    if (badge) badge.textContent = filtered.length + ' ' + t('logLines', 'lines');
+
+    if (filtered.length === 0) {
+        viewer.innerHTML = '<div style="text-align:center;color:#8b949e;padding:40px;">' + t('logNoMatch', 'No log lines match the current filter.') + '</div>';
+        return;
+    }
+
+    var html = filtered.map(function(line) {
+        var cls = 'log-line';
+        var ul  = line.toUpperCase();
+        if (ul.indexOf(' ERROR ') !== -1 || ul.indexOf('] ERROR') !== -1) cls += ' log-error';
+        else if (ul.indexOf(' WARN ')  !== -1 || ul.indexOf('] WARN')  !== -1) cls += ' log-warn';
+        else if (ul.indexOf(' DEBUG ') !== -1 || ul.indexOf('] DEBUG') !== -1) cls += ' log-debug';
+        else if (ul.indexOf(' TRACE ') !== -1 || ul.indexOf('] TRACE') !== -1) cls += ' log-trace';
+        else if (ul.indexOf(' INFO ')  !== -1 || ul.indexOf('] INFO')  !== -1) cls += ' log-info';
+        return '<div class="' + cls + '">' + escapeHtml(line) + '</div>';
+    }).join('');
+
+    viewer.innerHTML = '<style>' +
+        '.log-line{padding:1px 0;}' +
+        '.log-error{color:#f85149;}' +
+        '.log-warn{color:#e3b341;}' +
+        '.log-info{color:#79c0ff;}' +
+        '.log-debug{color:#56d364;}' +
+        '.log-trace{color:#8b949e;}' +
+        '</style>' + html;
+
+    scrollLogsToBottom();
+}
+
+function scrollLogsToBottom() {
+    var viewer = document.getElementById('logViewer');
+    if (viewer) viewer.scrollTop = viewer.scrollHeight;
+}
+
+function copyLogs() {
+    var text = _allLogLines.join('\n');
+    if (!text) { showNotification(t('logNothingToCopy', 'No logs to copy'), 'error'); return; }
+    navigator.clipboard.writeText(text)
+        .then(function() { showNotification(t('logCopied', '📋 Logs copied to clipboard'), 'success'); })
+        .catch(function() { showNotification(t('logCopyError', 'Could not copy to clipboard'), 'error'); });
+}
+
+function toggleAutoRefresh() {
+    var btn = document.getElementById('autoRefreshBtn');
+    if (_autoRefreshActive) {
+        clearInterval(_autoRefreshTimer);
+        _autoRefreshActive = false;
+        if (btn) { btn.textContent = t('logAutoRefresh', '⏵ Auto'); btn.classList.remove('btn-primary'); btn.classList.add('btn-secondary'); }
+    } else {
+        _autoRefreshActive = true;
+        loadLogs();
+        _autoRefreshTimer = setInterval(loadLogs, 5000);
+        if (btn) { btn.textContent = t('logAutoRefreshStop', '⏸ Stop'); btn.classList.remove('btn-secondary'); btn.classList.add('btn-primary'); }
+        showNotification(t('logAutoRefreshActive', '🔄 Auto-refresh every 5 seconds'), 'success');
+    }
+}
+
+function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Load log config once the DOM is ready (append to existing DOMContentLoaded logic)
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(loadLogConfig, 200);
+});
 
 
