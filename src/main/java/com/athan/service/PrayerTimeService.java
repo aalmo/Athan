@@ -18,11 +18,15 @@ public class PrayerTimeService {
     private static final Logger logger = LoggerFactory.getLogger(PrayerTimeService.class);
 
     public Map<String, LocalDateTime> calculatePrayerTimes(PrayerConfig config) {
+        return calculatePrayerTimesForDate(config, LocalDate.now());
+    }
+
+    public Map<String, LocalDateTime> calculatePrayerTimesForDate(PrayerConfig config, LocalDate date) {
         Map<String, LocalDateTime> prayerTimes = new LinkedHashMap<>();
 
         try {
             Coordinates coordinates = new Coordinates(config.getLatitude(), config.getLongitude());
-            DateComponents dateComponents = DateComponents.from(new Date());
+            DateComponents dateComponents = new DateComponents(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
             CalculationParameters parameters = getCalculationParameters(config.getCalculationMethod());
 
             PrayerTimes times = new PrayerTimes(coordinates, dateComponents, parameters);

@@ -121,6 +121,24 @@ public class AthanController {
         return ResponseEntity.ok(formattedTimes);
     }
 
+    @GetMapping("/api/prayer-times/tomorrow")
+    @ResponseBody
+    public ResponseEntity<?> getTomorrowPrayerTimes() {
+        PrayerConfig config = configService.getConfig();
+        java.time.LocalDate tomorrow = java.time.LocalDate.now().plusDays(1);
+        Map<String, LocalDateTime> prayerTimes = prayerTimeService.calculatePrayerTimesForDate(config, tomorrow);
+        DateTimeFormatter fmt24 = DateTimeFormatter.ofPattern("HH:mm");
+
+        Map<String, String> formattedTimes = prayerTimes.entrySet().stream()
+            .filter(e -> !e.getKey().equals("SUNRISE"))
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                e -> e.getValue().format(fmt24)
+            ));
+
+        return ResponseEntity.ok(formattedTimes);
+    }
+
     @PostMapping("/api/test-audio")
     @ResponseBody
     public ResponseEntity<?> testAudio(@RequestBody Map<String, Object> request) {

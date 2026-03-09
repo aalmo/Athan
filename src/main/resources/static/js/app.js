@@ -716,11 +716,36 @@ var prayerDisplayNames = {
     TASBEE7_1: 'First Tasbee7', TASBEE7_2: 'Second Tasbee7', TASBEE7_3: 'Third Tasbee7'
 };
 
+// Cache for tomorrow's prayer times (24h format strings)
+var tomorrowPrayerTimesRaw = null;
+var tomorrowFetchPending = false;
+
+function fetchTomorrowPrayerTimes() {
+    if (tomorrowFetchPending) return;
+    tomorrowFetchPending = true;
+    fetch('/api/prayer-times/tomorrow')
+        .then(function(r) { return r.json(); })
+        .then(function(times) {
+            tomorrowPrayerTimesRaw = times;
+            tomorrowFetchPending = false;
+        })
+        .catch(function() { tomorrowFetchPending = false; });
+}
+
 function parsePrayerTime(timeStr) {
     if (!timeStr) return null;
     var m = timeStr.match(/^(\d{1,2}):(\d{2})$/);
     if (!m) return null;
     var d = new Date();
+    d.setHours(parseInt(m[1], 10), parseInt(m[2], 10), 0, 0);
+    return d;
+}
+
+function parsePrayerTimeOnDate(timeStr, date) {
+    if (!timeStr) return null;
+    var m = timeStr.match(/^(\d{1,2}):(\d{2})$/);
+    if (!m) return null;
+    var d = new Date(date);
     d.setHours(parseInt(m[1], 10), parseInt(m[2], 10), 0, 0);
     return d;
 }
@@ -743,11 +768,33 @@ function findNextPrayer() {
             if (!nearestTime || t < nearestTime) {
                 nearestTime = t;
                 var domEl = document.querySelector('[data-prayer-key="' + key + '"]');
-                var domTime = domEl ? (domEl.closest('.time-item') || {}).querySelector : null;
-                domTime = domEl && domEl.closest('.time-item') ? domEl.closest('.time-item').querySelector('.time') : null;
-                var display = (domTime ? domTime.textContent.trim() : null) || val;
-                nearest = { key: key, time: t, display: display };
+                domEl = domEl && domEl.closest('.time-item') ? domEl.closest('.time-item').querySelector('.time') : null;
+                var display = (domEl ? domEl.textContent.trim() : null) || val;
+                nearest = { key: key, time: t, display: display, tomorrow: false };
             }
+        }
+    }
+    return nearest;
+}
+
+function findNextTomorrowPrayer() {
+    if (!tomorrowPrayerTimesRaw) return null;
+    var tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    var skip = ['SUNRISE'];
+    var nearest = null;
+    var nearestTime = null;
+
+    var entries = Object.entries(tomorrowPrayerTimesRaw);
+    for (var i = 0; i < entries.length; i++) {
+        var key = entries[i][0];
+        var val = entries[i][1];
+        if (skip.indexOf(key) >= 0) continue;
+        var t = parsePrayerTimeOnDate(val, tomorrow);
+        if (!t) continue;
+        if (!nearestTime || t < nearestTime) {
+            nearestTime = t;
+            nearest = { key: key, time: t, display: val, tomorrow: true };
         }
     }
     return nearest;
@@ -777,19 +824,41 @@ var countdownInterval = null;
 function tickCountdown() {
     var next = findNextPrayer();
     var lang = window._currentLang || {};
+
     if (!next) {
-        document.getElementById('countdownPrayerName').textContent = lang.countdownAllPassed || 'All prayers completed today';
-        document.getElementById('cdHours').textContent   = '--';
-        document.getElementById('cdMinutes').textContent = '--';
-        document.getElementById('cdSeconds').textContent = '--';
-        document.getElementById('countdownAtTime').textContent = '🌙';
-        document.getElementById('countdownProgress').style.width = '100%';
-        return;
+        // All today's prayers done — fetch tomorrow's times if not yet available
+        if (!tomorrowPrayerTimesRaw) {
+            fetchTomorrowPrayerTimes();
+            // Show placeholder while loading
+            document.getElementById('countdownPrayerName').textContent = lang.countdownAllPassed || 'All prayers completed today';
+            document.getElementById('cdHours').textContent   = '--';
+            document.getElementById('cdMinutes').textContent = '--';
+            document.getElementById('cdSeconds').textContent = '--';
+            document.getElementById('countdownAtTime').textContent = '🌙';
+            document.getElementById('countdownProgress').style.width = '100%';
+            return;
+        }
+
+        // Use tomorrow's first prayer
+        next = findNextTomorrowPrayer();
+        if (!next) {
+            document.getElementById('countdownPrayerName').textContent = lang.countdownAllPassed || 'All prayers completed today';
+            document.getElementById('cdHours').textContent   = '--';
+            document.getElementById('cdMinutes').textContent = '--';
+            document.getElementById('cdSeconds').textContent = '--';
+            document.getElementById('countdownAtTime').textContent = '🌙';
+            document.getElementById('countdownProgress').style.width = '100%';
+            return;
+        }
     }
 
     var now = new Date();
     var diff = next.time - now;
-    if (diff <= 0) return;
+    if (diff <= 0) {
+        // Reset tomorrow cache at midnight to force re-fetch
+        if (next.tomorrow) { tomorrowPrayerTimesRaw = null; }
+        return;
+    }
 
     var totalSecs = Math.floor(diff / 1000);
     var h = Math.floor(totalSecs / 3600);
@@ -802,14 +871,32 @@ function tickCountdown() {
     document.getElementById('countdownAtTime').textContent = next.display;
 
     var name = lang[next.key] || prayerDisplayNames[next.key] || next.key;
+    // Indicate it's tomorrow's prayer
+    if (next.tomorrow) {
+        var tomorrowLabel = lang.tomorrow || 'Tomorrow';
+        name = name + ' (' + tomorrowLabel + ')';
+    }
     document.getElementById('countdownPrayerName').textContent = name;
 
-    var prev = findPreviousPrayerTime(next.key);
-    if (prev) {
-        var total = next.time - prev;
-        var elapsed = now - prev;
-        var pct = Math.min(100, Math.max(0, (elapsed / total) * 100));
-        document.getElementById('countdownProgress').style.width = pct + '%';
+    if (!next.tomorrow) {
+        var prev = findPreviousPrayerTime(next.key);
+        if (prev) {
+            var total = next.time - prev;
+            var elapsed = now - prev;
+            var pct = Math.min(100, Math.max(0, (elapsed / total) * 100));
+            document.getElementById('countdownProgress').style.width = pct + '%';
+        }
+    } else {
+        // Progress bar: show how far into the night we are (from last today's prayer to tomorrow's fajr)
+        var lastPrev = findPreviousPrayerTime('__none__'); // get absolute latest today
+        if (lastPrev) {
+            var total2 = next.time - lastPrev;
+            var elapsed2 = now - lastPrev;
+            var pct2 = Math.min(100, Math.max(0, (elapsed2 / total2) * 100));
+            document.getElementById('countdownProgress').style.width = pct2 + '%';
+        } else {
+            document.getElementById('countdownProgress').style.width = '50%';
+        }
     }
 }
 
