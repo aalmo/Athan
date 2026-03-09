@@ -9,6 +9,7 @@ import com.athan.service.IslamicHolidayService;
 import com.athan.service.LogConfigService;
 import com.athan.service.PrayerTimeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,6 +48,12 @@ public class AthanController {
     @Autowired
     private LogConfigService logConfigService;
 
+    @Value("${app.version:1.0.0}")
+    private String appVersion;
+
+    @Value("${app.build.number:dev}")
+    private String buildNumber;
+
     @GetMapping("/")
     public String index(Model model) {
         PrayerConfig config = configService.getConfig();
@@ -80,6 +87,8 @@ public class AthanController {
         model.addAttribute("calculationMethods", getCalculationMethods());
         model.addAttribute("timezones", getCommonTimezones());
         model.addAttribute("audioDevices", audioPlayerService.getAvailableAudioDevices());
+        model.addAttribute("appVersion", appVersion);
+        model.addAttribute("buildNumber", buildNumber);
 
         // 24-hour times for countdown JS (locale-independent)
         DateTimeFormatter fmt24 = DateTimeFormatter.ofPattern("HH:mm");

@@ -957,6 +957,12 @@
 
         <!-- Notification -->
         <div id="notification" class="notification"></div>
+
+        <!-- Build info footer -->
+        <div style="text-align:center;margin-top:var(--space-xl);padding-bottom:var(--space-l);font-size:0.68rem;color:var(--text-secondary);opacity:0.55;letter-spacing:0.04em;user-select:none;">
+            🕌 Athan &nbsp;·&nbsp; v<span th:text="${appVersion}">1.0.0</span>
+            &nbsp;·&nbsp; build <span th:text="${buildNumber}">dev</span>
+        </div>
     </div>
 
     <script th:inline="javascript">
