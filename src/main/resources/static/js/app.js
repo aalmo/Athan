@@ -470,39 +470,73 @@ function toggleIslamicHolidaysUI() {
 //  FILE UPLOAD
 // ════════════════════════════════════════
 function handleFileSelect(event) {
-    var file = event.target.files[0];
-    if (!file) return;
+    var files = Array.from(event.target.files);
+    if (!files.length) return;
+
     var validExtensions = ['.mp3', '.wav'];
-    var ext = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-    if (!validExtensions.includes(ext)) {
-        showNotification('Invalid file type. Please upload MP3 or WAV files only.', 'error');
+    var invalid = [], toUpload = [];
+
+    files.forEach(function(file) {
+        var ext = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+        if (!validExtensions.includes(ext)) {
+            invalid.push(file.name);
+        } else if (file.size > 100 * 1024 * 1024) {
+            invalid.push(file.name + ' (too large, max 100 MB)');
+        } else {
+            toUpload.push(file);
+        }
+    });
+
+    if (invalid.length) {
+        showNotification('⚠️ Skipped: ' + invalid.join(', '), 'error');
+    }
+    if (!toUpload.length) {
         event.target.value = '';
         return;
     }
-    if (file.size > 50 * 1024 * 1024) {
-        showNotification('File is too large. Maximum size is 50MB.', 'error');
-        event.target.value = '';
+
+    uploadFilesSequentially(toUpload, 0, 0, 0, event.target);
+}
+
+function uploadFilesSequentially(files, index, successCount, failCount, inputEl) {
+    if (index >= files.length) {
+        // All done
+        var total = files.length;
+        if (failCount === 0) {
+            showNotification('✅ ' + successCount + ' / ' + total + ' file' + (total > 1 ? 's' : '') + ' uploaded successfully', 'success');
+        } else {
+            showNotification('⚠️ ' + successCount + ' uploaded, ' + failCount + ' failed out of ' + total, 'error');
+        }
+        refreshFileList();
+        if (inputEl) inputEl.value = '';
         return;
     }
-    uploadFile(file);
+
+    var file = files[index];
+    var progress = '[' + (index + 1) + '/' + files.length + '] ';
+    showNotification('⬆️ ' + progress + file.name, 'success');
+
+    var formData = new FormData();
+    formData.append('file', file);
+
+    fetch('/api/upload-audio', { method: 'POST', body: formData })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success) {
+                uploadFilesSequentially(files, index + 1, successCount + 1, failCount, inputEl);
+            } else {
+                showNotification('❌ ' + file.name + ': ' + data.message, 'error');
+                uploadFilesSequentially(files, index + 1, successCount, failCount + 1, inputEl);
+            }
+        })
+        .catch(function(err) {
+            showNotification('❌ ' + file.name + ': ' + (err.message || 'Upload error'), 'error');
+            uploadFilesSequentially(files, index + 1, successCount, failCount + 1, inputEl);
+        });
 }
 
 function uploadFile(file) {
-    var formData = new FormData();
-    formData.append('file', file);
-    showNotification(t('uploadingFile','Uploading') + ' ' + file.name + '...', 'success');
-    fetch('/api/upload-audio', { method: 'POST', body: formData })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                showNotification('✅ ' + data.message, 'success');
-                refreshFileList();
-                document.getElementById('audioFileInput').value = '';
-            } else {
-                showNotification('❌ ' + data.message, 'error');
-            }
-        })
-        .catch(error => showNotification(t('uploadError','Error uploading file') + ': ' + error.message, 'error'));
+    uploadFilesSequentially([file], 0, 0, 0, document.getElementById('audioFileInput'));
 }
 
 function refreshFileList() {
